@@ -44,3 +44,5 @@ DEVEL-README
 ^vignettes/.*dvi
 ^vignettes/_region_.tex
 ^web
+^.*\.Rproj$
+^\.Rproj\.user$
