@@ -101,7 +101,13 @@ debugLevel                 i    ""     "--debug-level"                0         
 nbIterations               i    ""     "--iterations"                 0                  "Number of iterations." 
 nbExperimentsPerIteration  i    ""     "--experiments-per-iteration"  0                  "Number of experiments per iteration." 
 sampleInstances            b    ""     "--sample-instances"           1                  "Sample the instances or take them always in the same order." 
-init                       s    ""     "--init"                        "uniform"          "Initialization mode: uniform, lhs-both, lhs-wsum, lhs-corr, lhs-energy"
+
+                                     
+                                     
+init                       s    ""     "--init"                        "uniform"          "Initialization mode: uniform, lhs-both, lhs-wsum, lhs-corr, lhs-energy, euclidean_overlap"
+
+
+
 sampleInit                 x    ""     ""                             ""                 ""
 testType                   s    ""     "--test-type"                  "F-test"           "Specifies the statistical test type: F-test (Friedman test), t-test (pairwise t-tests with no correction), t-test-bonferroni (t-test with Bonferroni\'s correction for multiple comparisons), t-test-holm (t-test with Holm\'s correction for multiple comparisons)."
 firstTest                  i    ""     "--first-test"                 5                  "Specifies how many instances are seen before the first elimination test. It must be a multiple of eachTest."

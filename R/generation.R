@@ -408,12 +408,60 @@ mutatedLHD <- function(lhd)
 ### Using latin hypercube sampling for the initial generation
 # FIXME TODO forbidden is ignored. document/fix/remove?
 
+
+
+
+
+
+
+
+
+
+
+
+
+sampleLHS.euclidean_overlap <- function(parameters, nbConfigurations, digits, forbidden = NULL, repair = NULL)
+{
+  irace.note("Sampling ", nbConfigurations, " with LHS.euclidean_overlap\n")
+  
+  euclidean_overlap <- function(parameters, configurations){
+    
+    namesParameters <- names(parameters$conditions)
+    typesParameters <- parameters$types[namesParameters]
+   
+    #calculate similarity for all configurations pairwise
+    for (i in  seq(0, length(configurations)-1)) {
+      for (j in seq(i+1, length(configurations))){
+        
+        #for the curent pair of configurations calculate the similarity
+      
+      }
+    }
+  }
+
+
+  return(5)  
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
 sampleLHS.both <- function(parameters, nbConfigurations, digits, forbidden = NULL, repair = NULL)
 {
   both <- function(param, config) { 
     cor = correlationCriterion(param, config)
     energy = energyCriterion(param, config)
     return(c(cor, energy))
+    irace.note('CURRENT PARAMS: ', param)
   }
   irace.note("Sampling ", nbConfigurations, " with LHS.both\n")
   return(sampleLHS(parameters, nbConfigurations, digits, forbidden, nbEvaluations=500, objective = both))
