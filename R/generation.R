@@ -49,10 +49,8 @@ toParamSet <- function(parameters) {
   ParamHelpers::makeParamSet(params=params)
 }
 
-
 sampleParamHelpers <- function(parameters, nbConfigurations, digits,
-                           forbidden = NULL, repair = NULL)
-{
+                           forbidden = NULL, repair = NULL){
   paramSet <- toParamSet(parameters)
   design <- ParamHelpers::generateDesign(nbConfigurations, paramSet, fun = lhs::improvedLHS)
   namesParameters <- names(parameters$conditions)
@@ -77,8 +75,7 @@ isUnconditional <- function(parameters, partialConfiguration, paramName) {
 
 ## When called with an unconditional parameter, it
 ## must return TRUE
-conditionsSatisfied <- function (parameters, partialConfiguration, paramName)
-{
+conditionsSatisfied <- function (parameters, partialConfiguration, paramName){
   condition <- parameters$conditions[[paramName]]
   # If there is no condition, do not waste time evaluating it.
   if (!length(all.vars(condition, max.names = 1L))) return(TRUE)
@@ -89,8 +86,7 @@ conditionsSatisfied <- function (parameters, partialConfiguration, paramName)
   return(v)
 }
 
-new.empty.configuration <- function(parameters)
-{
+new.empty.configuration <- function(parameters){
   namesParameters <- names(parameters$conditions)
   newConfigurationsColnames <- c(namesParameters, ".PARENT.")
   empty.configuration <- as.list(rep(NA, length(newConfigurationsColnames)))
@@ -98,8 +94,7 @@ new.empty.configuration <- function(parameters)
   return(empty.configuration)
 }
 
-get.fixed.value <- function(param, parameters)
-{
+get.fixed.value <- function(param, parameters){
   value <- parameters$domain[[param]][1]
   type <- parameters$types[[param]]
   if (type == "i") {
@@ -112,8 +107,7 @@ get.fixed.value <- function(param, parameters)
   }
 }
 
-energyCriterion <- function(parameters, configurations)
-{
+energyCriterion <- function(parameters, configurations){
   namesParameters <- names(parameters$conditions)
   empty.configuration <- new.empty.configuration(parameters)
   types <- parameters$types[namesParameters]
@@ -168,8 +162,7 @@ energyCriterion <- function(parameters, configurations)
   return (energyValue)
 }
 
-correlationCriterion_old <- function (parameters, configurations)
-{
+correlationCriterion_old <- function (parameters, configurations){
   columnsAllNA <- apply(is.na(configurations), 2, all)
 #  columnsAllNA <- as.logical(colSums(apply(configurations, 2, is.na)) == nrow(configurations))
   empty.configuration <- new.empty.configuration(parameters)
@@ -220,8 +213,7 @@ correlationCriterion_old <- function (parameters, configurations)
 }
 
 # alternative correlation function: calculates more pairwise correlations, but shorter code
-correlationCriterion <- function (parameters, configurations)
-{
+correlationCriterion <- function (parameters, configurations){
   columnsAllNA <- apply(is.na(configurations), 2, all)
   #columnsAllNA <- as.logical(colSums(apply(configurations, 2, is.na)) == nrow(configurations))
   empty.configuration <- new.empty.configuration(parameters)
@@ -250,8 +242,7 @@ correlationCriterion <- function (parameters, configurations)
   return (corSum / counter)
 }
 
-set.intervalValues <- function(lhd, nbCondSatisfied, intervalScaledIndices, intervalScaledNames)
-{
+set.intervalValues <- function(lhd, nbCondSatisfied, intervalScaledIndices, intervalScaledNames){
   if(nbCondSatisfied > 1) {
     intervalValues <- (lhd - 1) / (nbCondSatisfied - 1.0)
   } else {
@@ -264,8 +255,7 @@ set.intervalValues <- function(lhd, nbCondSatisfied, intervalScaledIndices, inte
   return(intervalValues)
 }
 
-num.cond.satisfied <- function(parameters, indices, configurations)
-{
+num.cond.satisfied <- function(parameters, indices, configurations){
   namesParameters <- names(parameters$conditions)
   satisfiedMask <- as.vector(by(configurations,
                                 seq_len(nrow(configurations)),
@@ -275,33 +265,58 @@ num.cond.satisfied <- function(parameters, indices, configurations)
   return(sum(satisfiedMask))
 }
 
+
+
+
+
+
+
+
+
+
 fillPartialConfig <- function(parameters, indices, configurations, digits,
-                              intervalValues=NULL, nomialValues=NULL)
-{
+                              intervalValues=NULL, nomialValues=NULL){
+  
+  #get parameter names and types
   namesParameters <- names(parameters$conditions)
   types <- parameters$types[namesParameters]
+  
+  #returns the number of configurations, for which the current condition is true and therefore the parameters enabled by the current condition need to be sampled 
   nbCondSatisfied <- num.cond.satisfied(parameters, indices, configurations)
   
-  # interval-scaled (integer and real) parameter values
+  # if LHS for interval-scaled scaled parameters is Null (for whatever reason) generate one
   if(is.null(intervalValues)) {
+    # get interval-scaled parameter indices and names of the parameters which are enabled by the current condition
     intervalScaledIndices <- intersect(which(types == "i" | types == "r"), indices)
     intervalScaledNames <- namesParameters[intervalScaledIndices]
+    #generate a random LHD for all  interval-scaled parameters which are enabled by the current condition, the number of points is the number of configurations, for which the current condition is TRUE
+    #values range from 1 to #points
     lhd <- randomLHD(length(intervalScaledIndices), nbCondSatisfied)
+    #scale the LHD to 0..1
     intervalValues <- set.intervalValues(lhd, nbCondSatisfied, intervalScaledIndices,
                                          intervalScaledNames)
   }
-  # categorical and ordinal parameter values
+  
+  # if list vector for nomial-scaled parameters is Null (for whatever reason)generate one
   if(is.null(nomialValues)) {
+    # get nomial parameter indices and names of the parameters which are enabled by the current condition
     nomialScaledIndices <- intersect(which(types == "c" | types == "o"), indices)
     nomialScaledNames <- namesParameters[nomialScaledIndices]
+    
+    #initialize a list vector, one element for each nomial scaled parameter enabled by the current condition
     nomialValues <- vector("list", length(nomialScaledNames))
     names(nomialValues) <- nomialScaledNames
+    
+    #determine domain for each nomial parameter enabled by the current condition and sample from it as many times as there are configurations for which the current condition is true
     for (nomialName in nomialScaledNames) {
       possibleValues <- parameters$domain[[nomialName]]
+      
+      #repeat value nbConSatisfied times if size of domain is 1
       if (length(possibleValues) == 1) {
         nomialValues[[nomialName]] <- rep(possibleValues, nbCondSatisfied)
       } else {
         while (length(nomialValues[[nomialName]]) < nbCondSatisfied) {
+          #sample as much as possible - either size of domain or until finished
           nbSampled <- min(nbCondSatisfied - length(nomialValues[[nomialName]]),
                            length(possibleValues))
           extendedVector <- append(nomialValues[[nomialName]],
@@ -312,62 +327,109 @@ fillPartialConfig <- function(parameters, indices, configurations, digits,
     }
   }
 
-  # note that configurations may have more than nbCondSatisfied rows
-  # thus we need satisfiedCounter to iterate over lhs and nomialValues
+  ## note that configurations may have more than nbCondSatisfied rows
+  ## thus we need satisfiedCounter to iterate over lhs and nomialValues
+  
+  # nbCondSatisfied: number of configurations for which the current condition is True
+  # configurations: (empty) data frame to contain the configurations
   satisfiedCounter <- 1
+  #iterate over all configurations
   for (idxConfiguration in seq_len(nrow(configurations))) {
     configuration <- configurations[idxConfiguration,]
+    #iterate over the indices of the parameters which are enabled/disabled by the current condition
     for (p in indices) {
       currentParameter <- namesParameters[p]
+      #check if the current condition enables the current parameter for the current configuration
       isSatisfied <- conditionsSatisfied(parameters, configuration, currentParameter)
+      #if the current condition is not true set to NA
       if (!isSatisfied) {
         configuration[[p]] <- NA
         next
       }
+      
       # We must be careful because parameters$types does not have the
       # same order as namesParameters, because we sample in the order of the
       # conditions.
+      
+      #get the type of the current parameter
       currentType <- parameters$types[[currentParameter]]
+      
+      #if parameter is fixed - i.e. only one value is possible there is no need to sample
       if (isFixed(currentParameter, parameters)) {
-        # We don't even need to sample, there is only one possible value !
         newVal <- get.fixed.value (currentParameter, parameters)
-        # The parameter is not fixed and should be sampled
+        
+      # if the parameter is not fixed the value from the lhd ranged 0..1 needs to be scaled to proper parameter range
+        
+      # start with integer parameters  
       } else if (currentType == "i") {
+        #determine upper and lower bound
         lowerBound <- as.integer(parameters$domain[[currentParameter]][1])
         upperBound <- as.integer(parameters$domain[[currentParameter]][2])
+        
+        #scale to actual parameter range
         normalizedVal <- intervalValues[satisfiedCounter, currentParameter]
         newVal <- floor(lowerBound + normalizedVal * (1 + upperBound - lowerBound))
         # normalizedVal may be 1 so that would produce upperBound + 1:
         newVal <- min(newVal, upperBound)
+        #validate newVal
         irace.assert(newVal >= lowerBound)
         irace.assert(newVal <= upperBound, eval.after = {
           sprintf("newVal = %g, normalizedVal = %g, upperBound = %g, satisfiedCounter = %g, currentParam = %s\n",
                   newVal, normalizedVal, upperBound, satisfiedCounter, currentParameter) })
+        
+      #real parameter
       } else if (currentType == "r") {
+        #determine upper and lower bound
         lowerBound <- parameters$domain[[currentParameter]][1]
         upperBound <- parameters$domain[[currentParameter]][2]
+
         normalizedVal <- intervalValues[satisfiedCounter, currentParameter]
+        
+        #validate normalized value
         irace.assert(normalizedVal >= 0)
         irace.assert(normalizedVal <= 1)
+        
+        #scale from 0..1 to parameter range and round 
         newVal <- lowerBound + normalizedVal * (upperBound - lowerBound)
         newVal <- round(newVal, digits)
+        
+        #validate
         irace.assert(newVal >= lowerBound)
         irace.assert(newVal <= upperBound, eval.after = {
           sprintf("newVal = %g, normalizedVal = %g, upperBound = %g, satisfiedCounter = %g, currentParam = %s\n",
                   newVal, normalizedVal, upperBound, satisfiedCounter, currentParameter) })
+        
+      #categorical and ordinal parameters
+      #no need to scale, just select from nomialValues
       } else if (currentType == "c" || currentType == "o") {
         newVal <- nomialValues[[currentParameter]][satisfiedCounter]
       } else {
         stop (.irace.bug.report);
       }
+      
+      #write (scaled) value into the current configuration
       configuration[[p]] <- newVal
     }
+    
+    #increase satisfiedCounter if the condition has enabled the current parameter - in the next iteration it needs to be sampled from the next elemtn of the 0..1 lhs or the nomial values
     satisfiedCounter <- satisfiedCounter + isSatisfied
+    
+    #update/insert configurations data frame
     configuration <- as.data.frame(configuration, stringsAsFactors=FALSE)
     configurations[idxConfiguration,] <- configuration
   }
   return(configurations)
 }
+
+
+
+
+
+
+
+
+
+
 
 randomLHD <- function(dimension, numberPoints) {
   lhd <- matrix(nrow = numberPoints, ncol = dimension)
@@ -389,13 +451,15 @@ safeSample <- function(x, size, ...) {
   }
 }
 
-mutatedLHD <- function(lhd)
-{
+mutatedLHD <- function(lhd){
   dimension <- ncol(lhd)
   nbPoints <- nrow(lhd)
   irace.assert(dimension > 0)
+  # sample number of columns to choose (1 or more) 
   nbColumns = max(1, rbinom(1, dimension, 1 / dimension))
+  #sample safely nbColumn dimensions(parameters)
   chosenColumns = safeSample(seq_len(dimension), nbColumns)
+  #swap two values in each selected column
   for (i in chosenColumns) {
     swapIndices <- safeSample(seq_len(nbPoints), 2)
     temp <- lhd[swapIndices[1], i]
@@ -408,8 +472,7 @@ mutatedLHD <- function(lhd)
 ### Using latin hypercube sampling for the initial generation
 # FIXME TODO forbidden is ignored. document/fix/remove?
 
-sampleLHS.euclidean_overlap <- function(parameters, nbConfigurations, digits, forbidden = NULL, repair = NULL)
-{
+sampleLHS.euclidean_overlap <- function(parameters, nbConfigurations, digits, forbidden = NULL, repair = NULL){
   irace.note("Sampling ", nbConfigurations, " with LHS.euclidean_overlap\n")
 
   #gets overlap of two values (binary)    
@@ -506,14 +569,15 @@ sampleLHS.euclidean_overlap <- function(parameters, nbConfigurations, digits, fo
   
     irace.note('AKTUELL: ', inv.min.dist)
   return(inv.min.dist)
+    
+    
+    irace.note
   }
   
   return(sampleLHS(parameters, nbConfigurations, digits, forbidden, nbEvaluations=500, objective = euclidean_overlap))
 }
 
-
-sampleLHS.both <- function(parameters, nbConfigurations, digits, forbidden = NULL, repair = NULL)
-{
+sampleLHS.both <- function(parameters, nbConfigurations, digits, forbidden = NULL, repair = NULL){
   both <- function(param, config) { 
     cor = correlationCriterion(param, config)
     energy = energyCriterion(param, config)
@@ -524,8 +588,7 @@ sampleLHS.both <- function(parameters, nbConfigurations, digits, forbidden = NUL
   return(sampleLHS(parameters, nbConfigurations, digits, forbidden, nbEvaluations=500, objective = both))
 }
 
-sampleLHS.weightedSum <- function(parameters, nbConfigurations, digits, forbidden = NULL, repair = NULL)
-{
+sampleLHS.weightedSum <- function(parameters, nbConfigurations, digits, forbidden = NULL, repair = NULL){
   weightedSum <- function(param, config) { 
     cor = correlationCriterion(param, config)
     energy = energyCriterion(param, config)
@@ -540,13 +603,25 @@ sampleLHS.corr <- function(parameters, nbConfigurations, digits, forbidden = NUL
     irace.note("Sampling ", nbConfigurations, " with LHS.corr\n")
   return(sampleLHS(parameters, nbConfigurations, digits, forbidden, nbEvaluations=500, objective = correlationCriterion))
 }
+
 sampleLHS.energy <- function(parameters, nbConfigurations, digits, forbidden = NULL, repair = NULL) {
   irace.note("Sampling ", nbConfigurations, " with LHS.energy\n")
   return(sampleLHS(parameters, nbConfigurations, digits, forbidden, nbEvaluations=500, objective = energyCriterion))
 }
 
-sampleLHS <- function (parameters, nbConfigurations, digits, forbidden=NULL, nbEvaluations=1, objective=NULL)
-{
+
+
+
+
+
+
+
+
+
+#samples a set of configurations using LHS, optimization criterion determined by parameter
+sampleLHS <- function (parameters, nbConfigurations, digits, forbidden=NULL, nbEvaluations=1, objective=NULL){
+  
+  #default method is energy + correlation criterion
   if(is.null(objective)) {
     objective <- function(param, config) { 
                        cor = correlationCriterion(param, config)
@@ -554,41 +629,71 @@ sampleLHS <- function (parameters, nbConfigurations, digits, forbidden=NULL, nbE
                        return(c(cor, energy))
                      }
   }
+  
+  #read parameter names and types
   namesParameters <- names(parameters$conditions)
   types <- parameters$types[namesParameters]
+  
+  #initialize newConfigurations as empty data frame with NULLs, nrow = number configurations to be generated, ncol = parameters + 1
+  #colnames: parameter names + .PARENT. name 
   newConfigurations  <-
     as.data.frame(matrix(nrow = nbConfigurations,
                          ncol = length(namesParameters) + 1,
                          dimnames = list(NULL, c(namesParameters, ".PARENT."))
                          ))
+  
+  #generates an empty configuration - all parameter values and .PARENT. are NA
   empty.configuration <- new.empty.configuration(parameters)
 
-  # sample conditional parameters (unconditional is included as special case)
+  #get conditions as strings and a set of unique conditions
   conditions <- parameters$conditions
   conditionStrings <- as.character(conditions)
   conditionStringsSet <- unique(conditionStrings)
+  
+  #for each unique condition
   for (conditionString in conditionStringsSet) {
+    
+    #get the indices of the parameters which are enabled/disabled by the current condition
     indices <- which(conditionStrings == conditionString)
+    
+    #returns the number of configurations, for which the current condition is true and therefore the parameters enabled by the current condition need to be sampled 
     nbCondSatisfied <- num.cond.satisfied(parameters, indices, newConfigurations)
-    # initialize
-    # interval-scaled (integer and real) parameter values
+    
+    # get interval-scaled parameter indices and names of the parameters which are enabled by the current condition
     intervalScaledIndices <- intersect(which(types == "i" | types == "r"), indices)
     intervalScaledNames <- namesParameters[intervalScaledIndices]
+    
+    #generate a random LHD for all  interval-scaled parameters which are enabled by the current condition, the number of points is the number of configurations, for which the current condition is TRUE
+    #values range from 1 to #points
     lhd <- randomLHD(length(intervalScaledIndices), nbCondSatisfied)
+    
+    #set column names of LHD to the names of the interval-scaled parameters which are enabled by the current condition
     colnames(lhd) <- intervalScaledNames
-    intervalValues <- set.intervalValues(lhd, nbCondSatisfied, intervalScaledIndices,
-                                         intervalScaledNames)
-    # categorical and ordinal parameter values
+    
+    #scale the LHD to 0..1
+    intervalValues <- set.intervalValues(lhd, nbCondSatisfied, intervalScaledIndices, intervalScaledNames)
+    
+    
+    # get nomial parameter indices and names of the parameters which are enabled by the current condition
     nomialScaledIndices <- intersect(which(types == "c" | types == "o"), indices)
     nomialScaledNames <- namesParameters[nomialScaledIndices]
+    
+    #initialize a list vector, one element for each nomial scaled parameter enabled by the current condition
     nomialValues <- vector("list", length(nomialScaledNames))
     names(nomialValues) <- nomialScaledNames
+    
+    #determine domain for each nomial parameter enabled by the current condition and sample from it as many times as there are configurations for which the current condition is true
     for (nomialName in nomialScaledNames) {
       possibleValues <- parameters$domain[[nomialName]]
+      
+      #repeat value nbConSatisfied times if size of domain is 1
       if (length(possibleValues) == 1) {
         nomialValues[[nomialName]] <- rep(possibleValues, nbCondSatisfied)
-      } else {
+      } 
+      #if size of the domain is larger than 1 sample nbConSatisfied times from domain
+      else {
         while (length(nomialValues[[nomialName]]) < nbCondSatisfied) {
+          #sample as much as possible - either size of domain or until finished
           nbSampled <- min(nbCondSatisfied - length(nomialValues[[nomialName]]),
                            length(possibleValues))
           extendedVector <- append(nomialValues[[nomialName]],
@@ -597,35 +702,68 @@ sampleLHS <- function (parameters, nbConfigurations, digits, forbidden=NULL, nbE
         }
       }
     }
-    # fill config with initial values
+    
+    
+    #set best LHD to initial config generated above - this is still in the conditions loop!
+    #interval-scaled parameters only
     bestLHD <- lhd
+    
+    #parameters of fillPartialConfig():
+    # parameters:         global parameter information
+    # indices:            indices of the parameters which are enabled/disabled by the current condition
+    # newConfigurations:  empty data frame with NULLs, nrow = configurations, ncol = parameters + 1 (for .PARENT.)
+    # digits:             precision
+    # intervalValues:     scaled LHD for the interval-scaled parameters enabled by the current condition
+    # nomialValues:       list-vector of configurations for the nomial-scaled parameters enabled by the current condition
+    # 
+    #returns a data frame containing the configurations scaled to actual parameter range and NA where condition is not True
     bestCandidateConfigs <- fillPartialConfig(parameters,
                                               indices,
                                               newConfigurations,
                                               digits,
                                               intervalValues,
                                               nomialValues)
+    
+    #optimize if:
+    # there is at least one interval-scaled parameter enabled by the current condition
+    # and there is at least one configuration which satisfies the current condition
+    # and genetic algorithm has more than one iteration
     if(length(intervalScaledIndices) > 0 && nbCondSatisfied > 1 && nbEvaluations > 1) {
+      
+      #evaluate objective function on initial configuration and set is as bestObj
       bestObj <- objective(parameters, bestCandidateConfigs)
       print(paste(paste(indices, collapse=" "), conditionString))
-      # optimize
+      
+      # optimize nbEvalutions times
       for(i in seq_len(nbEvaluations)) {
+        
+        #generate cofigurations scaled to actual parameter range and NA where condition is not True (just as above), but intervalValues are mutrated in each iteration
         candidateConfigs <- fillPartialConfig(parameters,
                                               indices,
                                               newConfigurations,
                                               digits,
                                               intervalValues,
                                               nomialValues)
+        
+        #evaluate objective function  on current configurations 
         obj <- objective(parameters, candidateConfigs)
+        
+        #if all objectives are smaller or equal currently best objective update best objective and update best LHD
+        #this code minimizes the objective
+        
         if (all(obj <= bestObj)) {
           bestObj <- obj
           irace.note('BEST: ', bestObj)
+          #best LHD ist kept for mutation
           bestLHD <- lhd
+          #best configurations are stored
           bestCandidateConfigs <- candidateConfigs
         }
         cat(paste(i, obj, bestObj, sep="	", collapse="	"), "\n")
         # mutate for next iteration
         lhd <- mutatedLHD(bestLHD)
+        
+        #scale the LHD to 0..1 and verify to get new intervalValues
         intervalValues <- (lhd - 1) / (nbCondSatisfied - 1.0)
         irace.assert(all(intervalValues >= 0))
         irace.assert(all(intervalValues <= 1))
@@ -633,15 +771,23 @@ sampleLHS <- function (parameters, nbConfigurations, digits, forbidden=NULL, nbE
     }
     newConfigurations <- bestCandidateConfigs
   }
+  #return best found configurations
   return (newConfigurations)
 }
 
 
 
+
+
+
+
+
+
+
+
 ### Uniform sampling for the initial generation
 sampleUniform <- function (parameters, nbConfigurations, digits,
-                           forbidden = NULL, repair = NULL)
-{
+                           forbidden = NULL, repair = NULL){
   # Sample new configurations.
   if (getOption(".irace.debug.level", default = 0) >= 1) {
     irace.note("Sampling ", nbConfigurations,
@@ -714,8 +860,7 @@ sampleUniform <- function (parameters, nbConfigurations, digits,
 # included the elite ones obtained from the previous iteration
 sampleModel <- function (parameters, eliteConfigurations, model,
                          nbNewConfigurations, digits, forbidden = NULL,
-                         repair = NULL)
-{
+                         repair = NULL){
   if (nbNewConfigurations <= 0) {
     irace.error ("The number of configurations to generate appears to be negative or zero.")
   }
