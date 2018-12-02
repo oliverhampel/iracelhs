@@ -411,7 +411,7 @@ fillPartialConfig <- function(parameters, indices, configurations, digits,
       configuration[[p]] <- newVal
     }
     
-    #increase satisfiedCounter if the condition has enabled the current parameter - in the next iteration it needs to be sampled from the next elemtn of the 0..1 lhs or the nomial values
+    #increase satisfiedCounter if the condition is true for the current configuration - in the next iteration it needs to be sampled from the next row of the 0..1 lhs or the next element of nomialValues
     satisfiedCounter <- satisfiedCounter + isSatisfied
     
     #update/insert configurations data frame
@@ -732,7 +732,9 @@ sampleLHS <- function (parameters, nbConfigurations, digits, forbidden=NULL, nbE
       
       #evaluate objective function on initial configuration and set is as bestObj
       bestObj <- objective(parameters, bestCandidateConfigs)
-      print(paste(paste(indices, collapse=" "), conditionString))
+      
+      ### comment out because it's annoying atm
+      ###print(paste(paste(indices, collapse=" "), conditionString))
       
       # optimize nbEvalutions times
       for(i in seq_len(nbEvaluations)) {
@@ -753,13 +755,19 @@ sampleLHS <- function (parameters, nbConfigurations, digits, forbidden=NULL, nbE
         
         if (all(obj <= bestObj)) {
           bestObj <- obj
-          irace.note('BEST: ', bestObj)
+          
+          ### comment out because it's annoying atm
+          ###irace.note('BEST: ', bestObj)
+          
           #best LHD ist kept for mutation
           bestLHD <- lhd
           #best configurations are stored
           bestCandidateConfigs <- candidateConfigs
         }
-        cat(paste(i, obj, bestObj, sep="	", collapse="	"), "\n")
+        
+        ### comment out because it's annoying atm
+        ###cat(paste(i, obj, bestObj, sep="	", collapse="	"), "\n")
+        
         # mutate for next iteration
         lhd <- mutatedLHD(bestLHD)
         
@@ -769,9 +777,12 @@ sampleLHS <- function (parameters, nbConfigurations, digits, forbidden=NULL, nbE
         irace.assert(all(intervalValues <= 1))
       }
     }
+    print(bestLHD)
+    print(nomialValues)
     newConfigurations <- bestCandidateConfigs
   }
   #return best found configurations
+  
   return (newConfigurations)
 }
 
