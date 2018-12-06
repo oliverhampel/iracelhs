@@ -6,6 +6,9 @@ mixedLHD = function(
   types = types
   ){
   
+  library(lhs)
+  
+  #these may not be necessary, delete?
   integerIndices = intersect(which(types == "i"), indices)
   realIndices = intersect(which(types == "r"), indices)
   ordinalIndices =  intersect(which(types == "o"), indices)
@@ -16,27 +19,93 @@ mixedLHD = function(
   ordinalNames <- namesParameters[ordinalIndices]
   categoricalNames <- namesParameters[categoricalIndices]
   
-  #generate LHD to fill
+  # LHD to fill
   lhd = matrix(ncol = length(indices), nrow = nbCondSatisfied)
-  
   currentLHDColumn = 1 
   
-  #initialize vector to store column names/parameter names
   colNames = vector(length = ncol(lhd))
   
-  #iterate over categorical parameters first
+  if(length(categoricalNames) > 0){
+    
+    withCategorical = addCategorical(
+                            lhd = lhd,
+                            colNames = colNames, 
+                            nbCondSatisfied = nbCondSatisfied,
+                            categoricalNames = categoricalNames,
+                            parameters = parameters,
+                            currentLHDColumn = currentLHDColumn
+                          )
+    
+    
+    lhd = withCategorical[["lhd"]]
+    currentLHDColumn = withCategorical[["currentLHDColumn"]]
+    colNames = withCategorical[["colNames"]]
+  }
+  
+  if(length(ordinalNames > 0)){
+    
+    withOrdinal = addOrdinal(
+      lhd = lhd,
+      colNames = colNames, 
+      nbCondSatisfied = nbCondSatisfied,
+      ordinalNames = ordinalNames,
+      parameters = parameters,
+      currentLHDColumn = currentLHDColumn
+    )
+    
+    lhd = withOrdinal[["lhd"]]
+    currentLHDColumn = withOrdinal[["currentLHDColumn"]]
+    colNames = withOrdinal[["colNames"]]
+
+  }
+
+  if(length(integerNames) > 0){
+    
+    withInteger = addInteger(
+      lhd = lhd,
+      colNames = colNames, 
+      nbCondSatisfied = nbCondSatisfied,
+      integerNames = integerNames,
+      parameters = parameters,
+      currentLHDColumn = currentLHDColumn
+    )
+    
+    lhd = withInteger[["lhd"]]
+    currentLHDColumn = withInteger[["currentLHDColumn"]]
+    colNames = withInteger[["colNames"]]
+  }
+  
+  if(length(realNames) > 0){
+    
+    withReal = addReal(
+      lhd = lhd,
+      colNames = colNames, 
+      nbCondSatisfied = nbCondSatisfied,
+      realNames = realNames,
+      parameters = parameters,
+      currentLHDColumn = currentLHDColumn
+    )
+    
+    lhd = withReal[["lhd"]]
+    currentLHDColumn = withReal[["currentLHDColumn"]]
+    colNames = withReal[["colNames"]]
+    
+  }
+  
+  return(lhd)
+}
+
+addCategorical = function(lhd, colNames, nbCondSatisfied, categoricalNames, parameters, currentLHDColumn){
+  
   for (categoricalName in categoricalNames){
     
-    #name current column of lhd
     colNames[currentLHDColumn] = categoricalName
     colnames(lhd) = colNames
     
-    #get domain of current parameter
     domain <- parameters$domain[[categoricalName]]
     
     #if the domain is larger than the number of configurations for which to sample, sample uniformly from domain
     if(length(domain) >= nbCondSatisfied){
-
       parameterSample = sample(domain, nbCondSatisfied, replace = FALSE)
     }
     
@@ -45,15 +114,10 @@ mixedLHD = function(
     #times
     else{
       
-      #number of values to sample
       toSample = nbCondSatisfied
-      
-      #create indices of the rows for which to sample
       rowIndices = 1:nbCondSatisfied
-      
-      #initialize vector to fill with sampled values
       parameterSample = vector(length = nbCondSatisfied)
-            
+      
       #sample 
       while(toSample >= length(domain)){
         
@@ -71,30 +135,100 @@ mixedLHD = function(
           toSample = toSample - 1
         }
       }
-
       
       #sample the remainder
       if(toSample > 0){
         toInsert = sample(domain,toSample)
         
         gaps = which(parameterSample == FALSE)
-        print(gaps)
         
         for(gap in gaps){
           parameterSample[gap] = toInsert[1]
           length(toInsert) = length(toInsert)-1
         }
       }
-      
     }
     
     lhd[,currentLHDColumn] = parameterSample
     currentLHDColumn = currentLHDColumn + 1    
-
-  }  
-  print(lhd)
+    
+  }
+  toReturn = list("lhd" = lhd, "currentLHDColumn" = currentLHDColumn, "colNames" = colNames)
+  return(toReturn)
 }
 
+addOrdinal = function(lhd, colNames, nbCondSatisfied, ordinalNames, parameters, currentLHDColumn){
+  
+  InitialOrdinalLHD = randomLHS(n = nbCondSatisfied, k = length(ordinalNames))
+  currentOrdinalLHDColumn = 1
+  
+  for (ordinalName in ordinalNames){
+    
+    colNames[currentLHDColumn] = ordinalName
+    colnames(lhd) = colNames
+    
+    domain = parameters$domain[[ordinalName]]
+    sectionSize = 1/length(domain)
+    
+    initialColumn = InitialOrdinalLHD[,currentOrdinalLHDColumn]
+    
+    parameterSample = vector()
+    
+    for(v in initialColumn){
+      section = floor(v/sectionSize) + 1
+      parameterSample = c(parameterSample, domain[section])
+    }
+    
+    lhd[,currentLHDColumn] = parameterSample
+    currentOrdinalLHDColumn = currentOrdinalLHDColumn + 1
+    currentLHDColumn = currentLHDColumn + 1
+  }
+  
+  toReturn = list("lhd" = lhd, "currentLHDColumn" = currentLHDColumn, "colNames" = colNames)
+  return(toReturn)
+}
 
+addInteger = function(lhd, colNames, nbCondSatisfied, integerNames, parameters, currentLHDColumn){
+  
+  InitialIntegerLHD = randomLHS(n = nbCondSatisfied, k = length(integerNames))
+  currentIntegerLHDColumn = 1
+  
+  for(integerName in integerNames){
+    
+    colNames[currentLHDColumn] = integerName
+    colnames(lhd) = colNames
+    
+    parameterSample = InitialIntegerLHD[,currentIntegerLHDColumn]
+    
+    lhd[,currentLHDColumn] = parameterSample
+    currentIntegerLHDColumn = currentIntegerLHDColumn + 1
+    currentLHDColumn = currentLHDColumn + 1
+  }
+  
+  toReturn = list("lhd" = lhd, "currentLHDColumn" = currentLHDColumn, "colNames" = colNames)
+  return(toReturn)
+}
+
+addReal = function(lhd, colNames, nbCondSatisfied, realNames, parameters, currentLHDColumn){
+  
+  InitialRealLHD = randomLHS(n = nbCondSatisfied, k = length(realNames))
+  
+  currentRealLHDColumn = 1
+  
+  for(realName in realNames){
+    
+    colNames[currentLHDColumn] = realName
+    colnames(lhd) = colNames
+    
+    parameterSample = InitialRealLHD[,currentRealLHDColumn]
+    
+    lhd[,currentLHDColumn] = parameterSample
+    currentRealLHDColumn = currentRealLHDColumn + 1
+    currentLHDColumn = currentLHDColumn + 1
+  }
+  
+  toReturn = list("lhd" = lhd, "currentLHDColumn" = currentLHDColumn, "colNames" = colNames)
+  return(toReturn)
+}
 
 

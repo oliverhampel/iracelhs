@@ -685,7 +685,8 @@ sampleLHS <- function (parameters, nbConfigurations, digits, forbidden=NULL, nbE
         types = types
         )
       
-      print("stopping")
+      print(lhd)
+      
       stop("stopping")
       
     }
