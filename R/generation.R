@@ -242,6 +242,19 @@ correlationCriterion <- function (parameters, configurations){
   return (corSum / counter)
 }
 
+weightedSum <- function(param, config) { 
+  cor = correlationCriterion(param, config)
+  energy = energyCriterion(param, config)
+  return(energy + log10(cor))
+}
+
+both <- function(param, config) { 
+  cor = correlationCriterion(param, config)
+  energy = energyCriterion(param, config)
+  return(c(cor, energy))
+  irace.note('CURRENT PARAMS: ', param)
+}
+
 set.intervalValues <- function(lhd, nbCondSatisfied, intervalScaledIndices, intervalScaledNames){
   if(nbCondSatisfied > 1) {
     intervalValues <- (lhd - 1) / (nbCondSatisfied - 1.0)
@@ -574,39 +587,30 @@ sampleLHS.euclidean_overlap <- function(parameters, nbConfigurations, digits, fo
     irace.note
   }
   
-  return(sampleLHS(parameters, nbConfigurations, digits, forbidden, nbEvaluations=500, objective = euclidean_overlap))
+  return(sampleLHS(parameters, nbConfigurations, digits, forbidden, nbEvaluations=500, objective = euclidean_overlap, legacy = FALSE))
 }
 
 sampleLHS.both <- function(parameters, nbConfigurations, digits, forbidden = NULL, repair = NULL){
-  both <- function(param, config) { 
-    cor = correlationCriterion(param, config)
-    energy = energyCriterion(param, config)
-    return(c(cor, energy))
-    irace.note('CURRENT PARAMS: ', param)
-  }
+
   irace.note("Sampling ", nbConfigurations, " with LHS.both\n")
-  return(sampleLHS(parameters, nbConfigurations, digits, forbidden, nbEvaluations=500, objective = both))
+  return(sampleLHS(parameters, nbConfigurations, digits, forbidden, nbEvaluations=500, objective = both, legacy = TRUE))
 }
 
 sampleLHS.weightedSum <- function(parameters, nbConfigurations, digits, forbidden = NULL, repair = NULL){
-  weightedSum <- function(param, config) { 
-    cor = correlationCriterion(param, config)
-    energy = energyCriterion(param, config)
-    return(energy + log10(cor))
-  }
+
   irace.note("Sampling ", nbConfigurations, " with LHS.weightedSum\n")
 
-  return(sampleLHS(parameters, nbConfigurations, digits, forbidden, nbEvaluations=500, objective = weightedSum))
+  return(sampleLHS(parameters, nbConfigurations, digits, forbidden, nbEvaluations=500, objective = weightedSum, legacy = TRUE))
 }
 
 sampleLHS.corr <- function(parameters, nbConfigurations, digits, forbidden = NULL, repair = NULL) {
     irace.note("Sampling ", nbConfigurations, " with LHS.corr\n")
-  return(sampleLHS(parameters, nbConfigurations, digits, forbidden, nbEvaluations=500, objective = correlationCriterion))
+  return(sampleLHS(parameters, nbConfigurations, digits, forbidden, nbEvaluations=500, objective = correlationCriterion, legacy = TRUE))
 }
 
 sampleLHS.energy <- function(parameters, nbConfigurations, digits, forbidden = NULL, repair = NULL) {
   irace.note("Sampling ", nbConfigurations, " with LHS.energy\n")
-  return(sampleLHS(parameters, nbConfigurations, digits, forbidden, nbEvaluations=500, objective = energyCriterion))
+  return(sampleLHS(parameters, nbConfigurations, digits, forbidden, nbEvaluations=500, objective = energyCriterion, legacy = TRUE))
 }
 
 
@@ -619,7 +623,8 @@ sampleLHS.energy <- function(parameters, nbConfigurations, digits, forbidden = N
 
 
 #samples a set of configurations using LHS, optimization criterion determined by parameter
-sampleLHS <- function (parameters, nbConfigurations, digits, forbidden=NULL, nbEvaluations=1, objective=NULL){
+#legacy parameter indicates whether legacy optimization criteria are used
+sampleLHS <- function (parameters, nbConfigurations, digits, forbidden=NULL, nbEvaluations=1, objective=NULL, legacy){
   
   #default method is energy + correlation criterion
   if(is.null(objective)) {
@@ -650,18 +655,44 @@ sampleLHS <- function (parameters, nbConfigurations, digits, forbidden=NULL, nbE
   conditionStrings <- as.character(conditions)
   conditionStringsSet <- unique(conditionStrings)
   
-  #for each unique condition
+  #!!!FROM HERE ONWARDS CHANGES NEED TO BE MADE!!!
+  
+  #!!!KEEP!!! for each unique condition
   for (conditionString in conditionStringsSet) {
     
-    #get the indices of the parameters which are enabled/disabled by the current condition
+    #!!!KEEP!!! get the indices of the parameters which are enabled/disabled by the current condition
     indices <- which(conditionStrings == conditionString)
     
-    #returns the number of configurations, for which the current condition is true and therefore the parameters enabled by the current condition need to be sampled 
+    #!!!KEEP!!! returns the number of configurations, for which the current condition is true and therefore the parameters enabled by the current condition need to be sampled 
     nbCondSatisfied <- num.cond.satisfied(parameters, indices, newConfigurations)
     
-    # get interval-scaled parameter indices and names of the parameters which are enabled by the current condition
+    #!!!KEEP!!! get interval-scaled parameter indices and names of the parameters which are enabled by the current condition
     intervalScaledIndices <- intersect(which(types == "i" | types == "r"), indices)
     intervalScaledNames <- namesParameters[intervalScaledIndices]
+    
+    #!!!KEEP!!! get nomial parameter indices and names of the parameters which are enabled by the current condition
+    nomialScaledIndices <- intersect(which(types == "c" | types == "o"), indices)
+    nomialScaledNames <- namesParameters[nomialScaledIndices]
+    
+    #!!!NEW!!! if the optimization criterion is not among the legacy ones, generate a LHS for both interval and nomial scaled parameters enabled by the current condition
+    if (!legacy){
+      
+      lhd = mixedLHD(
+        parameters = parameters,
+        indices = indices,
+        namesParameters = namesParameters,
+        nbCondSatisfied = nbCondSatisfied,
+        types = types
+        )
+      
+      print("stopping")
+      stop("stopping")
+      
+    }
+     
+    
+    
+    
     
     #generate a random LHD for all  interval-scaled parameters which are enabled by the current condition, the number of points is the number of configurations, for which the current condition is TRUE
     #values range from 1 to #points
@@ -674,9 +705,7 @@ sampleLHS <- function (parameters, nbConfigurations, digits, forbidden=NULL, nbE
     intervalValues <- set.intervalValues(lhd, nbCondSatisfied, intervalScaledIndices, intervalScaledNames)
     
     
-    # get nomial parameter indices and names of the parameters which are enabled by the current condition
-    nomialScaledIndices <- intersect(which(types == "c" | types == "o"), indices)
-    nomialScaledNames <- namesParameters[nomialScaledIndices]
+    
     
     #initialize a list vector, one element for each nomial scaled parameter enabled by the current condition
     nomialValues <- vector("list", length(nomialScaledNames))
