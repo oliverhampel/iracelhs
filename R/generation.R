@@ -287,7 +287,7 @@ num.cond.satisfied <- function(parameters, indices, configurations){
 
 
 
-fillPartialConfig <- function(parameters, indices, configurations, digits,
+fillPartialConfigLegacy <- function(parameters, indices, configurations, digits,
                               intervalValues=NULL, nomialValues=NULL){
   
   #get parameter names and types
@@ -655,26 +655,24 @@ sampleLHS <- function (parameters, nbConfigurations, digits, forbidden=NULL, nbE
   conditionStrings <- as.character(conditions)
   conditionStringsSet <- unique(conditionStrings)
   
-  #!!!FROM HERE ONWARDS CHANGES NEED TO BE MADE!!!
-  
-  #!!!KEEP!!! for each unique condition
+  #for each unique condition
   for (conditionString in conditionStringsSet) {
     
-    #!!!KEEP!!! get the indices of the parameters which are enabled/disabled by the current condition
+    #get the indices of the parameters which are enabled/disabled by the current condition
     indices <- which(conditionStrings == conditionString)
     
-    #!!!KEEP!!! returns the number of configurations, for which the current condition is true and therefore the parameters enabled by the current condition need to be sampled 
+    #returns the number of configurations, for which the current condition is true and therefore the parameters enabled by the current condition need to be sampled 
     nbCondSatisfied <- num.cond.satisfied(parameters, indices, newConfigurations)
     
-    #!!!KEEP!!! get interval-scaled parameter indices and names of the parameters which are enabled by the current condition
+    #get interval-scaled parameter indices and names of the parameters which are enabled by the current condition
     intervalScaledIndices <- intersect(which(types == "i" | types == "r"), indices)
     intervalScaledNames <- namesParameters[intervalScaledIndices]
     
-    #!!!KEEP!!! get nomial parameter indices and names of the parameters which are enabled by the current condition
+    #get nomial parameter indices and names of the parameters which are enabled by the current condition
     nomialScaledIndices <- intersect(which(types == "c" | types == "o"), indices)
     nomialScaledNames <- namesParameters[nomialScaledIndices]
     
-    #!!!NEW!!! if the optimization criterion is not among the legacy ones, generate a LHS for both interval and nomial scaled parameters enabled by the current condition
+    #generate a LHD for all parameters
     if (!legacy){
       
       lhd = mixedLHD(
@@ -684,75 +682,127 @@ sampleLHS <- function (parameters, nbConfigurations, digits, forbidden=NULL, nbE
         nbCondSatisfied = nbCondSatisfied,
         types = types
         )
-      
-      print(lhd)
-      
-      stop("stopping")
-      
     }
      
-    
-    
-    
-    
-    #generate a random LHD for all  interval-scaled parameters which are enabled by the current condition, the number of points is the number of configurations, for which the current condition is TRUE
-    #values range from 1 to #points
-    lhd <- randomLHD(length(intervalScaledIndices), nbCondSatisfied)
-    
-    #set column names of LHD to the names of the interval-scaled parameters which are enabled by the current condition
-    colnames(lhd) <- intervalScaledNames
-    
-    #scale the LHD to 0..1
-    intervalValues <- set.intervalValues(lhd, nbCondSatisfied, intervalScaledIndices, intervalScaledNames)
-    
-    
-    
-    
-    #initialize a list vector, one element for each nomial scaled parameter enabled by the current condition
-    nomialValues <- vector("list", length(nomialScaledNames))
-    names(nomialValues) <- nomialScaledNames
-    
-    #determine domain for each nomial parameter enabled by the current condition and sample from it as many times as there are configurations for which the current condition is true
-    for (nomialName in nomialScaledNames) {
-      possibleValues <- parameters$domain[[nomialName]]
+    #generate a LHD for interval parameters and sample values for nomial parameters
+    else{
       
-      #repeat value nbConSatisfied times if size of domain is 1
-      if (length(possibleValues) == 1) {
-        nomialValues[[nomialName]] <- rep(possibleValues, nbCondSatisfied)
-      } 
-      #if size of the domain is larger than 1 sample nbConSatisfied times from domain
-      else {
-        while (length(nomialValues[[nomialName]]) < nbCondSatisfied) {
-          #sample as much as possible - either size of domain or until finished
-          nbSampled <- min(nbCondSatisfied - length(nomialValues[[nomialName]]),
-                           length(possibleValues))
-          extendedVector <- append(nomialValues[[nomialName]],
-                                   sample(possibleValues, nbSampled))
-          nomialValues[[nomialName]] <- extendedVector
+      #generate a random LHD for all  interval-scaled parameters which are enabled by the current condition, the number of points is the number of configurations, for which the current condition is TRUE
+      #values range from 1 to #points
+      lhd <- randomLHD(length(intervalScaledIndices), nbCondSatisfied)
+      
+      #set column names of LHD to the names of the interval-scaled parameters which are enabled by the current condition
+      colnames(lhd) <- intervalScaledNames
+      
+      #scale the LHD to 0..1
+      intervalValues <- set.intervalValues(lhd, nbCondSatisfied, intervalScaledIndices, intervalScaledNames)
+      
+      #initialize a list vector, one element for each nomial scaled parameter enabled by the current condition
+      nomialValues <- vector("list", length(nomialScaledNames))
+      names(nomialValues) <- nomialScaledNames
+      
+      #determine domain for each nomial parameter enabled by the current condition and sample from it as many times as there are configurations for which the current condition is true
+      for (nomialName in nomialScaledNames) {
+        possibleValues <- parameters$domain[[nomialName]]
+        
+        #repeat value nbConSatisfied times if size of domain is 1
+        if (length(possibleValues) == 1) {
+          nomialValues[[nomialName]] <- rep(possibleValues, nbCondSatisfied)
+        } 
+        #if size of the domain is larger than 1 sample nbConSatisfied times from domain
+        else {
+          while (length(nomialValues[[nomialName]]) < nbCondSatisfied) {
+            #sample as much as possible - either size of domain or until finished
+            nbSampled <- min(nbCondSatisfied - length(nomialValues[[nomialName]]),
+                             length(possibleValues))
+            extendedVector <- append(nomialValues[[nomialName]],
+                                     sample(possibleValues, nbSampled))
+            nomialValues[[nomialName]] <- extendedVector
+          }
         }
       }
     }
     
     
-    #set best LHD to initial config generated above - this is still in the conditions loop!
-    #interval-scaled parameters only
     bestLHD <- lhd
     
-    #parameters of fillPartialConfig():
-    # parameters:         global parameter information
-    # indices:            indices of the parameters which are enabled/disabled by the current condition
-    # newConfigurations:  empty data frame with NULLs, nrow = configurations, ncol = parameters + 1 (for .PARENT.)
-    # digits:             precision
-    # intervalValues:     scaled LHD for the interval-scaled parameters enabled by the current condition
-    # nomialValues:       list-vector of configurations for the nomial-scaled parameters enabled by the current condition
-    # 
-    #returns a data frame containing the configurations scaled to actual parameter range and NA where condition is not True
-    bestCandidateConfigs <- fillPartialConfig(parameters,
-                                              indices,
-                                              newConfigurations,
-                                              digits,
-                                              intervalValues,
-                                              nomialValues)
+
+    if(!legacy){
+      
+      bestCandidateConfigs = fillPartialConfig(
+        parameters = parameters,
+        namesParameters = namesParameters,
+        types = types,
+        nbCondSatisfied = nbCondSatisfied,
+        indices = indices,
+        configurations = newConfigurations,
+        digits = digits,
+        lhd = lhd
+      )
+    
+        
+    }
+    
+    else{
+     
+      #parameters of fillPartialConfigLegacy():
+      # parameters:         global parameter information
+      # indices:            indices of the parameters which are enabled/disabled by the current condition
+      # newConfigurations:  empty data frame with NULLs, nrow = configurations, ncol = parameters + 1 (for .PARENT.)
+      # digits:             precision
+      # intervalValues:     scaled LHD for the interval-scaled parameters enabled by the current condition
+      # nomialValues:       list-vector of configurations for the nomial-scaled parameters enabled by the current condition
+      # 
+      #returns a data frame containing the configurations scaled to actual parameter range and NA where condition is not True
+      bestCandidateConfigs <- fillPartialConfigLegacy(parameters,
+                                                indices,
+                                                newConfigurations,
+                                                digits,
+                                                intervalValues,
+                                                nomialValues)
+      
+    }
+    
+    print(bestLHD)
+    print(bestCandidateConfigs)
+    
+    stop("stopping")
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     
     #optimize if:
     # there is at least one interval-scaled parameter enabled by the current condition
@@ -770,7 +820,7 @@ sampleLHS <- function (parameters, nbConfigurations, digits, forbidden=NULL, nbE
       for(i in seq_len(nbEvaluations)) {
         
         #generate cofigurations scaled to actual parameter range and NA where condition is not True (just as above), but intervalValues are mutrated in each iteration
-        candidateConfigs <- fillPartialConfig(parameters,
+        candidateConfigs <- fillPartialConfigLegacy(parameters,
                                               indices,
                                               newConfigurations,
                                               digits,

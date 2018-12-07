@@ -3,12 +3,11 @@ mixedLHD = function(
   indices,
   namesParameters,
   nbCondSatisfied,
-  types = types
+  types
   ){
   
   library(lhs)
   
-  #these may not be necessary, delete?
   integerIndices = intersect(which(types == "i"), indices)
   realIndices = intersect(which(types == "r"), indices)
   ordinalIndices =  intersect(which(types == "o"), indices)
@@ -232,3 +231,79 @@ addReal = function(lhd, colNames, nbCondSatisfied, realNames, parameters, curren
 }
 
 
+fillPartialConfig = function(parameters, namesParameters, types, nbCondSatisfied,indices, configurations, digits, lhd){
+  
+  satisfiedCounter = 1
+  
+  for(idxConfiguration in seq_len(nrow(configurations))){
+    configuration = configurations[idxConfiguration,]
+    
+    anySatisfied = FALSE
+    
+    for(p in indices){
+      currentParameter = namesParameters[p]
+      
+      currentType = types[[currentParameter]]
+      isSatisfied = conditionsSatisfied(parameters, configurations, currentParameter)
+      anySatisfied = max(anySatisfied, isSatisfied)
+      
+      if(!isSatisfied){
+        configuration[[p]] = NA
+        next
+      }
+      
+      else if(isFixed(currentParameter, parameters)){
+        newVal = get.fixed.value(currentParameter, parameters)
+      }
+      
+      else if(currentType == "i"){
+        lowerBound = as.integer(parameters$domain[[currentParameter]][1])
+        upperBound = as.integer(parameters$domain[[currentParameter]][2])
+        
+        normalizedVal = as.numeric(lhd[satisfiedCounter, currentParameter])
+        newVal = floor(lowerBound + normalizedVal * (1 + upperBound - lowerBound))
+        
+        irace.assert(newVal >= lowerBound)
+        irace.assert(newVal <= upperBound, eval.after = {
+        sprintf("newVal = %g, normalizedVal = %g, upperBound = %g, satisfiedCounter = %g, currentParam = %s\n",
+                  newVal, normalizedVal, upperBound, satisfiedCounter, currentParameter) })
+        
+        
+      }
+      
+      else if(currentType == "r"){
+        lowerBound <- parameters$domain[[currentParameter]][1]
+        upperBound <- parameters$domain[[currentParameter]][2]
+        
+        normalizedVal <- as.numeric(lhd[satisfiedCounter, currentParameter])
+        newVal = lowerBound + normalizedVal * (upperBound - lowerBound)
+        
+        #validate
+        irace.assert(newVal >= lowerBound)
+        irace.assert(newVal <= upperBound, eval.after = {
+          sprintf("newVal = %g, normalizedVal = %g, upperBound = %g, satisfiedCounter = %g, currentParam = %s\n",
+                  newVal, normalizedVal, upperBound, satisfiedCounter, currentParameter) })
+      }
+      
+      else if(currentType %in% c("c", "o")){
+        
+        newVal = lhd[satisfiedCounter, currentParameter]
+        
+      }
+      
+      else{
+        stop (.irace.bug.report);
+      }
+      
+      configuration[p] = newVal
+    }
+    
+    satisfiedCounter = satisfiedCounter + anySatisfied
+    configuration = as.data.frame(configuration, stringsAsFactors = FALSE)
+    configurations[idxConfiguration,] = configuration
+    
+  }
+  
+  return(configurations)
+  
+}
