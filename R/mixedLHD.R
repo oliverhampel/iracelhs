@@ -230,22 +230,23 @@ addReal = function(lhd, colNames, nbCondSatisfied, realNames, parameters, curren
   return(toReturn)
 }
 
-
-fillPartialConfig = function(parameters, namesParameters, types, nbCondSatisfied,indices, configurations, digits, lhd){
+fillPartialConfig = function(parameters, namesParameters, types, nbCondSatisfied, indices, configurations, digits, lhd){
   
   satisfiedCounter = 1
   
   for(idxConfiguration in seq_len(nrow(configurations))){
     configuration = configurations[idxConfiguration,]
     
-    anySatisfied = FALSE
+    allSatisfied = FALSE
     
     for(p in indices){
       currentParameter = namesParameters[p]
       
       currentType = types[[currentParameter]]
-      isSatisfied = conditionsSatisfied(parameters, configurations, currentParameter)
-      anySatisfied = max(anySatisfied, isSatisfied)
+      
+      isSatisfied = conditionsSatisfied(parameters, configuration, currentParameter)
+      
+      allSatisfied = max(allSatisfied, isSatisfied)
       
       if(!isSatisfied){
         configuration[[p]] = NA
@@ -257,9 +258,10 @@ fillPartialConfig = function(parameters, namesParameters, types, nbCondSatisfied
       }
       
       else if(currentType == "i"){
+        
         lowerBound = as.integer(parameters$domain[[currentParameter]][1])
         upperBound = as.integer(parameters$domain[[currentParameter]][2])
-        
+      
         normalizedVal = as.numeric(lhd[satisfiedCounter, currentParameter])
         newVal = floor(lowerBound + normalizedVal * (1 + upperBound - lowerBound))
         
@@ -267,7 +269,6 @@ fillPartialConfig = function(parameters, namesParameters, types, nbCondSatisfied
         irace.assert(newVal <= upperBound, eval.after = {
         sprintf("newVal = %g, normalizedVal = %g, upperBound = %g, satisfiedCounter = %g, currentParam = %s\n",
                   newVal, normalizedVal, upperBound, satisfiedCounter, currentParameter) })
-        
         
       }
       
@@ -298,12 +299,13 @@ fillPartialConfig = function(parameters, namesParameters, types, nbCondSatisfied
       configuration[p] = newVal
     }
     
-    satisfiedCounter = satisfiedCounter + anySatisfied
+    satisfiedCounter = satisfiedCounter + allSatisfied
     configuration = as.data.frame(configuration, stringsAsFactors = FALSE)
     configurations[idxConfiguration,] = configuration
-    
   }
   
+  cat("\014")
+  print(configurations)
   return(configurations)
   
 }

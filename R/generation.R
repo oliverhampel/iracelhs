@@ -67,7 +67,6 @@ sampleParamHelpers <- function(parameters, nbConfigurations, digits,
   return(design)
 }
 
-
 isUnconditional <- function(parameters, partialConfiguration, paramName) {
   condition <- parameters$conditions[[paramName]]
   return(!length(all.vars(condition, max.names = 1L)))
@@ -78,11 +77,13 @@ isUnconditional <- function(parameters, partialConfiguration, paramName) {
 conditionsSatisfied <- function (parameters, partialConfiguration, paramName){
   condition <- parameters$conditions[[paramName]]
   # If there is no condition, do not waste time evaluating it.
+  
   if (!length(all.vars(condition, max.names = 1L))) return(TRUE)
-
+  
   v <- eval(condition, as.list(partialConfiguration))
   # Return TRUE if TRUE, FALSE if FALSE or NA
   v <- !is.na(v) && v
+  
   return(v)
 }
 
@@ -278,15 +279,6 @@ num.cond.satisfied <- function(parameters, indices, configurations){
   return(sum(satisfiedMask))
 }
 
-
-
-
-
-
-
-
-
-
 fillPartialConfigLegacy <- function(parameters, indices, configurations, digits,
                               intervalValues=NULL, nomialValues=NULL){
   
@@ -374,7 +366,8 @@ fillPartialConfigLegacy <- function(parameters, indices, configurations, digits,
       # if the parameter is not fixed the value from the lhd ranged 0..1 needs to be scaled to proper parameter range
         
       # start with integer parameters  
-      } else if (currentType == "i") {
+      } 
+      else if (currentType == "i") {
         #determine upper and lower bound
         lowerBound <- as.integer(parameters$domain[[currentParameter]][1])
         upperBound <- as.integer(parameters$domain[[currentParameter]][2])
@@ -391,7 +384,8 @@ fillPartialConfigLegacy <- function(parameters, indices, configurations, digits,
                   newVal, normalizedVal, upperBound, satisfiedCounter, currentParameter) })
         
       #real parameter
-      } else if (currentType == "r") {
+      } 
+      else if (currentType == "r") {
         #determine upper and lower bound
         lowerBound <- parameters$domain[[currentParameter]][1]
         upperBound <- parameters$domain[[currentParameter]][2]
@@ -414,9 +408,11 @@ fillPartialConfigLegacy <- function(parameters, indices, configurations, digits,
         
       #categorical and ordinal parameters
       #no need to scale, just select from nomialValues
-      } else if (currentType == "c" || currentType == "o") {
+      } 
+      else if (currentType == "c" || currentType == "o") {
         newVal <- nomialValues[[currentParameter]][satisfiedCounter]
-      } else {
+      } 
+      else {
         stop (.irace.bug.report);
       }
       
@@ -433,16 +429,6 @@ fillPartialConfigLegacy <- function(parameters, indices, configurations, digits,
   }
   return(configurations)
 }
-
-
-
-
-
-
-
-
-
-
 
 randomLHD <- function(dimension, numberPoints) {
   lhd <- matrix(nrow = numberPoints, ncol = dimension)
@@ -487,106 +473,6 @@ mutatedLHD <- function(lhd){
 
 sampleLHS.euclidean_overlap <- function(parameters, nbConfigurations, digits, forbidden = NULL, repair = NULL){
   irace.note("Sampling ", nbConfigurations, " with LHS.euclidean_overlap\n")
-
-  #gets overlap of two values (binary)    
-  overlap <- function(a, b){
-    print(a)
-    print(b)
-    if(a==b){
-      return(1)
-    }
-    else{
-      return(0)
-    }
-    
-  }
-  
-  #returns true if input string is "i" (integer) or "r" (real)
-  is_interval <- function(type){
-    if (type == "i" || type == "r"){
-      return(TRUE)
-    } else{
-      return(FALSE)
-    }
-  }
-  
-  #gets the range for the parameter pn based on a set of configurations
-  get_range <- function(configurations, namesParameters, typesParameters, pn){
-    
-    if(is_interval(typesParameters[pn])){
-      mx = max(configurations[[pn]], na.rm = TRUE)
-      mn = min(configurations[[pn]], na.rm = TRUE)
-      
-      if (!is.null(mx) && !is.null(mn)){
-          r = mx - mn
-          return(r)
-      } else {
-          return(NULL)
-      }
-    } else {
-        return(NULL)
-    }
-  }
-  
-  #gets the minimal heterogeneous euclidean-overlap distance of a set of configurations
-  #this is the optimizarion criterion
-  
-  euclidean_overlap <- function(parameters, configurations){
-    
-    #get parameter names and types
-    namesParameters <- names(parameters$conditions)
-    typesParameters <- parameters$types[namesParameters]
-    
-    #initialize inverted maximin distance -> will be minimized
-    inv.min.dist = NULL
-    
-    #calculate distance for all configurations pairwise
-    for (i in  seq(1, length(configurations)-1)) {
-      for (j in seq(i+1, length(configurations))){
-        
-        #for the curent pair of configurations calculate the distance
-        d = 0
-        
-        for(pn in namesParameters){
-        
-          
-          #get value for current configurations and parameter
-          a = configurations[[pn]][i]
-          b = configurations[[pn]][j]
-        
-          # add 1 to the distance if at least one of the configurations is NULL
-          # calculate distance w.r.t. the current parameter and add it to the overall distance d
-          if(!is.null.or.na(a) && !is.null.or.na(b)){
-            if(is_interval(typesParameters[pn])){
-              d = d + (abs(a-b)/get_range(configurations, namesParameters, typesParameters, pn))
-            } else {
-              d = d + overlap(a, b)
-            }
-          } else {
-            #add 1 if at least one of the configurations has a NULL value for the current parameter
-            d = d + 1
-          }
-        }
-      
-        
-      #update inv.min.dist
-      if (is.null.or.na(inv.min.dist)){
-        inv.min.dist = 1/d
-      } else{
-          if(1/d > inv.min.dist){
-            inv.min.dist = 1/d
-          }
-        }
-      }
-    }
-  
-    irace.note('AKTUELL: ', inv.min.dist)
-  return(inv.min.dist)
-    
-    
-    irace.note
-  }
-  
   return(sampleLHS(parameters, nbConfigurations, digits, forbidden, nbEvaluations=500, objective = euclidean_overlap, legacy = FALSE))
 }
 
@@ -612,15 +498,6 @@ sampleLHS.energy <- function(parameters, nbConfigurations, digits, forbidden = N
   irace.note("Sampling ", nbConfigurations, " with LHS.energy\n")
   return(sampleLHS(parameters, nbConfigurations, digits, forbidden, nbEvaluations=500, objective = energyCriterion, legacy = TRUE))
 }
-
-
-
-
-
-
-
-
-
 
 #samples a set of configurations using LHS, optimization criterion determined by parameter
 #legacy parameter indicates whether legacy optimization criteria are used
@@ -723,10 +600,9 @@ sampleLHS <- function (parameters, nbConfigurations, digits, forbidden=NULL, nbE
       }
     }
     
+    bestLHD = lhd
     
-    bestLHD <- lhd
-    
-
+    #mixed LHD optimization
     if(!legacy){
       
       bestCandidateConfigs = fillPartialConfig(
@@ -739,12 +615,57 @@ sampleLHS <- function (parameters, nbConfigurations, digits, forbidden=NULL, nbE
         digits = digits,
         lhd = lhd
       )
-    
+      
+      #optimize if there is more than one configuration which satisfies the current condition and
+      #genetic algorithm has mroe than one iteration
+      
+      if(nbCondSatisfied > 1 && nbEvaluations > 1){
         
+        bestObj = objective(parameters, bestCandidateConfigs)
+        
+        ### comment out because it's annoying atm
+        ###print(paste(paste(indices, collapse=" "), conditionString))
+        
+        #optimize nbEvaluations times
+        for(i in seq_len(nbEvaluations)){
+          
+          lhd = mutatedLHD(bestLHD)
+          
+          candidateConfigs = fillPartialConfig(
+                                parameters = parameters, 
+                                namesParameters = namesParameters, 
+                                types = types,
+                                nbCondSatisfied = nbCondSatisfied,
+                                indices = indices, 
+                                configurations = newConfigurations,
+                                digits = digits,
+                                lhd = lhd)
+          
+          obj = objective(parameters, candidateConfigs)
+          
+          if (all(obj <= bestObj)) {
+            
+            bestLHD = lhd
+            bestObj = obj
+            
+            ### comment out because it's annoying atm
+            ###irace.note('BEST: ', bestObj)
+            
+            bestCandidateConfigs = candidateConfigs
+          
+          }
+          
+          ### comment out because it's annoying atm
+          ###cat(paste(i, obj, bestObj, sep="	", collapse="	"), "\n")
+          
+        }  
+      }
+      newConfigurations <- bestCandidateConfigs
     }
     
+    #interval parameter LHD optimization
     else{
-     
+      
       #parameters of fillPartialConfigLegacy():
       # parameters:         global parameter information
       # indices:            indices of the parameters which are enabled/disabled by the current condition
@@ -755,126 +676,72 @@ sampleLHS <- function (parameters, nbConfigurations, digits, forbidden=NULL, nbE
       # 
       #returns a data frame containing the configurations scaled to actual parameter range and NA where condition is not True
       bestCandidateConfigs <- fillPartialConfigLegacy(parameters,
-                                                indices,
-                                                newConfigurations,
-                                                digits,
-                                                intervalValues,
-                                                nomialValues)
+                                                      indices,
+                                                      newConfigurations,
+                                                      digits,
+                                                      intervalValues,
+                                                      nomialValues)
       
-    }
-    
-    print(bestLHD)
-    print(bestCandidateConfigs)
-    
-    stop("stopping")
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    #optimize if:
-    # there is at least one interval-scaled parameter enabled by the current condition
-    # and there is at least one configuration which satisfies the current condition
-    # and genetic algorithm has more than one iteration
-    if(length(intervalScaledIndices) > 0 && nbCondSatisfied > 1 && nbEvaluations > 1) {
-      
-      #evaluate objective function on initial configuration and set is as bestObj
-      bestObj <- objective(parameters, bestCandidateConfigs)
-      
-      ### comment out because it's annoying atm
-      ###print(paste(paste(indices, collapse=" "), conditionString))
-      
-      # optimize nbEvalutions times
-      for(i in seq_len(nbEvaluations)) {
+      #optimize if:
+      # there is more than one interval-scaled parameter enabled by the current condition
+      # and there is at least one configuration which satisfies the current condition
+      # and genetic algorithm has more than one iteration
+      if(length(intervalScaledIndices) > 0 && nbCondSatisfied > 1 && nbEvaluations > 1) {
         
-        #generate cofigurations scaled to actual parameter range and NA where condition is not True (just as above), but intervalValues are mutrated in each iteration
-        candidateConfigs <- fillPartialConfigLegacy(parameters,
-                                              indices,
-                                              newConfigurations,
-                                              digits,
-                                              intervalValues,
-                                              nomialValues)
-        
-        #evaluate objective function  on current configurations 
-        obj <- objective(parameters, candidateConfigs)
-        
-        #if all objectives are smaller or equal currently best objective update best objective and update best LHD
-        #this code minimizes the objective
-        
-        if (all(obj <= bestObj)) {
-          bestObj <- obj
-          
-          ### comment out because it's annoying atm
-          ###irace.note('BEST: ', bestObj)
-          
-          #best LHD ist kept for mutation
-          bestLHD <- lhd
-          #best configurations are stored
-          bestCandidateConfigs <- candidateConfigs
-        }
+        #evaluate objective function on initial configuration and set is as bestObj
+        bestObj <- objective(parameters, bestCandidateConfigs)
         
         ### comment out because it's annoying atm
-        ###cat(paste(i, obj, bestObj, sep="	", collapse="	"), "\n")
+        ###print(paste(paste(indices, collapse=" "), conditionString))
         
-        # mutate for next iteration
-        lhd <- mutatedLHD(bestLHD)
-        
-        #scale the LHD to 0..1 and verify to get new intervalValues
-        intervalValues <- (lhd - 1) / (nbCondSatisfied - 1.0)
-        irace.assert(all(intervalValues >= 0))
-        irace.assert(all(intervalValues <= 1))
+        # optimize nbEvalutions times
+        for(i in seq_len(nbEvaluations)) {
+          
+          #generate cofigurations scaled to actual parameter range and NA where condition is not True (just as above), but intervalValues are mutrated in each iteration
+          candidateConfigs <- fillPartialConfigLegacy(parameters,
+                                                      indices,
+                                                      newConfigurations,
+                                                      digits,
+                                                      intervalValues,
+                                                      nomialValues)
+          
+          #evaluate objective function  on current configurations 
+          obj <- objective(parameters, candidateConfigs)
+          
+          #if all objectives are smaller or equal currently best objective update best objective and update best LHD
+          #this code minimizes the objective
+          
+          if (all(obj <= bestObj)) {
+            bestObj <- obj
+            
+            ### comment out because it's annoying atm
+            ###irace.note('BEST: ', bestObj)
+            
+            #best LHD ist kept for mutation
+            bestLHD <- lhd
+            #best configurations are stored
+            bestCandidateConfigs <- candidateConfigs
+          }
+          
+          ### comment out because it's annoying atm
+          ###cat(paste(i, obj, bestObj, sep="	", collapse="	"), "\n")
+          
+          # mutate for next iteration
+          lhd <- mutatedLHD(bestLHD)
+          
+          #scale the LHD to 0..1 and verify to get new intervalValues
+          intervalValues <- (lhd - 1) / (nbCondSatisfied - 1.0)
+          irace.assert(all(intervalValues >= 0))
+          irace.assert(all(intervalValues <= 1))
+        }
       }
+      
+      newConfigurations <- bestCandidateConfigs
     }
-    print(bestLHD)
-    print(nomialValues)
-    newConfigurations <- bestCandidateConfigs
+
   }
-  #return best found configurations
-  
   return (newConfigurations)
 }
-
-
-
-
-
-
-
-
-
-
 
 ### Uniform sampling for the initial generation
 sampleUniform <- function (parameters, nbConfigurations, digits,
