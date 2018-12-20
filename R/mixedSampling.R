@@ -1,105 +1,78 @@
-mixedLHD = function(
+mixedSampling = function(
   parameters,
   indices,
   namesParameters,
   nbCondSatisfied,
-  types
+  types,
+  samplingMethod
   ){
-  
+
   library(lhs)
+  library(randtoolbox)
   
   integerIndices = intersect(which(types == "i"), indices)
   realIndices = intersect(which(types == "r"), indices)
   ordinalIndices =  intersect(which(types == "o"), indices)
   categoricalIndices =intersect(which(types == "c"), indices)
   
+  
   integerNames = namesParameters[integerIndices]
   realNames <- namesParameters[realIndices]
   ordinalNames <- namesParameters[ordinalIndices]
   categoricalNames <- namesParameters[categoricalIndices]
   
-  # LHD to fill
-  lhd = matrix(ncol = length(indices), nrow = nbCondSatisfied)
-  currentLHDColumn = 1 
   
-  colNames = vector(length = ncol(lhd))
+  #sample to fill
+  sampling = matrix(ncol = length(indices), nrow = nbCondSatisfied)
+  currentSamplingColumn = 1 
   
+  colNames = vector(length = ncol(sampling))
+
   if(length(categoricalNames) > 0){
     
     withCategorical = addCategorical(
-                            lhd = lhd,
+                            sampling = sampling,
                             colNames = colNames, 
                             nbCondSatisfied = nbCondSatisfied,
                             categoricalNames = categoricalNames,
                             parameters = parameters,
-                            currentLHDColumn = currentLHDColumn
+                            currentSamplingColumn = currentSamplingColumn
                           )
     
     
-    lhd = withCategorical[["lhd"]]
-    currentLHDColumn = withCategorical[["currentLHDColumn"]]
+    sampling = withCategorical[["sampling"]]
+    currentSamplingColumn = withCategorical[["currentSamplingColumn"]]
     colNames = withCategorical[["colNames"]]
   }
   
-  if(length(ordinalNames > 0)){
+  nOtherParameters = length(ordinalNames) + length(integerNames) + length(realNames)
+  
+  if (nOtherParameters > 0) {
     
-    withOrdinal = addOrdinal(
-      lhd = lhd,
-      colNames = colNames, 
+    sampling = addOthers(
+      sampling = sampling,
+      colNames = colNames,
       nbCondSatisfied = nbCondSatisfied,
       ordinalNames = ordinalNames,
-      parameters = parameters,
-      currentLHDColumn = currentLHDColumn
-    )
-    
-    lhd = withOrdinal[["lhd"]]
-    currentLHDColumn = withOrdinal[["currentLHDColumn"]]
-    colNames = withOrdinal[["colNames"]]
-
-  }
-
-  if(length(integerNames) > 0){
-    
-    withInteger = addInteger(
-      lhd = lhd,
-      colNames = colNames, 
-      nbCondSatisfied = nbCondSatisfied,
       integerNames = integerNames,
-      parameters = parameters,
-      currentLHDColumn = currentLHDColumn
-    )
-    
-    lhd = withInteger[["lhd"]]
-    currentLHDColumn = withInteger[["currentLHDColumn"]]
-    colNames = withInteger[["colNames"]]
-  }
-  
-  if(length(realNames) > 0){
-    
-    withReal = addReal(
-      lhd = lhd,
-      colNames = colNames, 
-      nbCondSatisfied = nbCondSatisfied,
       realNames = realNames,
       parameters = parameters,
-      currentLHDColumn = currentLHDColumn
+      currentSamplingColumn = currentSamplingColumn,
+      samplingMethod = samplingMethod,
+      nOtherParameters = nOtherParameters
     )
-    
-    lhd = withReal[["lhd"]]
-    currentLHDColumn = withReal[["currentLHDColumn"]]
-    colNames = withReal[["colNames"]]
-    
   }
   
-  return(lhd)
+  return(sampling)
 }
 
-addCategorical = function(lhd, colNames, nbCondSatisfied, categoricalNames, parameters, currentLHDColumn){
+
+addCategorical = function(sampling, colNames, nbCondSatisfied, categoricalNames, parameters, currentSamplingColumn){
   
   for (categoricalName in categoricalNames){
     
-    colNames[currentLHDColumn] = categoricalName
-    colnames(lhd) = colNames
+    colNames[currentSamplingColumn] = categoricalName
+    colnames(sampling) = colNames
     
     domain <- parameters$domain[[categoricalName]]
     
@@ -148,28 +121,43 @@ addCategorical = function(lhd, colNames, nbCondSatisfied, categoricalNames, para
       }
     }
     
-    lhd[,currentLHDColumn] = parameterSample
-    currentLHDColumn = currentLHDColumn + 1    
+    sampling[,currentSamplingColumn] = parameterSample
+    currentSamplingColumn = currentSamplingColumn + 1    
     
   }
-  toReturn = list("lhd" = lhd, "currentLHDColumn" = currentLHDColumn, "colNames" = colNames)
+  toReturn = list("sampling" = sampling, "currentSamplingColumn" = currentSamplingColumn, "colNames" = colNames)
   return(toReturn)
 }
 
-addOrdinal = function(lhd, colNames, nbCondSatisfied, ordinalNames, parameters, currentLHDColumn){
+addOthers = function(sampling, colNames, nbCondSatisfied, ordinalNames, integerNames, realNames, parameters, currentSamplingColumn, samplingMethod, nOtherParameters){
   
-  InitialOrdinalLHD = randomLHS(n = nbCondSatisfied, k = length(ordinalNames))
-  currentOrdinalLHDColumn = 1
+  if(samplingMethod == 'lhs'){
+    initialSampling = randomLHS(n = nbCondSatisfied, k = nOtherParameters)  
+  }
+  else if(samplingMethod == 'halton'){
+    initialSampling = halton(n = nbCondSatisfied, dim = nOtherParameters)  
+  }
+  else if(samplingMethod == 'sobol'){
+    initialSampling = sobol(n = nbCondSatisfied, dim = nOtherParameters)
+  }
   
-  for (ordinalName in ordinalNames){
+  currentInternalSamplingColumn = 1
+  
+  
+  for(ordinalName in ordinalNames){
     
-    colNames[currentLHDColumn] = ordinalName
-    colnames(lhd) = colNames
+    colNames[currentSamplingColumn] = ordinalName
+    colnames(sampling) = colNames
     
     domain = parameters$domain[[ordinalName]]
     sectionSize = 1/length(domain)
     
-    initialColumn = InitialOrdinalLHD[,currentOrdinalLHDColumn]
+    if (is.null(ncol(initialSampling))){
+      initialColumn = initialSampling
+    }
+    else if(ncol(initialSampling) > 1){
+      initialColumn = initialSampling[,currentInternalSamplingColumn] 
+    }
     
     parameterSample = vector()
     
@@ -178,59 +166,52 @@ addOrdinal = function(lhd, colNames, nbCondSatisfied, ordinalNames, parameters, 
       parameterSample = c(parameterSample, domain[section])
     }
     
-    lhd[,currentLHDColumn] = parameterSample
-    currentOrdinalLHDColumn = currentOrdinalLHDColumn + 1
-    currentLHDColumn = currentLHDColumn + 1
+    sampling[,currentSamplingColumn] = parameterSample
+    currentInternalSamplingColumn = currentInternalSamplingColumn + 1
+    currentSamplingColumn = currentSamplingColumn + 1
+    
   }
-  
-  toReturn = list("lhd" = lhd, "currentLHDColumn" = currentLHDColumn, "colNames" = colNames)
-  return(toReturn)
-}
-
-addInteger = function(lhd, colNames, nbCondSatisfied, integerNames, parameters, currentLHDColumn){
-  
-  InitialIntegerLHD = randomLHS(n = nbCondSatisfied, k = length(integerNames))
-  currentIntegerLHDColumn = 1
   
   for(integerName in integerNames){
     
-    colNames[currentLHDColumn] = integerName
-    colnames(lhd) = colNames
+    colNames[currentSamplingColumn] = integerName
+    colnames(sampling) = colNames
     
-    parameterSample = InitialIntegerLHD[,currentIntegerLHDColumn]
+    if (is.null(ncol(initialSampling))){
+      parameterSample = initialSampling 
+    }
+    else if(ncol(initialSampling) > 1){
+      parameterSample = initialSampling[,currentInternalSamplingColumn]
+    }
     
-    lhd[,currentLHDColumn] = parameterSample
-    currentIntegerLHDColumn = currentIntegerLHDColumn + 1
-    currentLHDColumn = currentLHDColumn + 1
+    
+    sampling[,currentSamplingColumn] = parameterSample
+    currentInternalSamplingColumn = currentInternalSamplingColumn + 1
+    currentSamplingColumn = currentSamplingColumn + 1
   }
-  
-  toReturn = list("lhd" = lhd, "currentLHDColumn" = currentLHDColumn, "colNames" = colNames)
-  return(toReturn)
-}
-
-addReal = function(lhd, colNames, nbCondSatisfied, realNames, parameters, currentLHDColumn){
-  
-  InitialRealLHD = randomLHS(n = nbCondSatisfied, k = length(realNames))
-  
-  currentRealLHDColumn = 1
   
   for(realName in realNames){
     
-    colNames[currentLHDColumn] = realName
-    colnames(lhd) = colNames
+    colNames[currentSamplingColumn] = realName
+    colnames(sampling) = colNames
     
-    parameterSample = InitialRealLHD[,currentRealLHDColumn]
+    if (is.null(ncol(initialSampling))){
+      parameterSample = initialSampling 
+    }
+    else if(ncol(initialSampling) > 1){
+      parameterSample = initialSampling[,currentInternalSamplingColumn]
+    }
     
-    lhd[,currentLHDColumn] = parameterSample
-    currentRealLHDColumn = currentRealLHDColumn + 1
-    currentLHDColumn = currentLHDColumn + 1
+    
+    sampling[,currentSamplingColumn] = parameterSample
+    currentInternalSamplingColumn = currentInternalSamplingColumn + 1
+    currentSamplingColumn = currentSamplingColumn + 1
   }
   
-  toReturn = list("lhd" = lhd, "currentLHDColumn" = currentLHDColumn, "colNames" = colNames)
-  return(toReturn)
+  return(sampling)
 }
 
-fillPartialConfig = function(parameters, namesParameters, types, nbCondSatisfied, indices, configurations, digits, lhd){
+fillPartialConfig = function(parameters, namesParameters, types, nbCondSatisfied, indices, configurations, digits, sampling){
   
   satisfiedCounter = 1
   
@@ -262,7 +243,7 @@ fillPartialConfig = function(parameters, namesParameters, types, nbCondSatisfied
         lowerBound = as.integer(parameters$domain[[currentParameter]][1])
         upperBound = as.integer(parameters$domain[[currentParameter]][2])
       
-        normalizedVal = as.numeric(lhd[satisfiedCounter, currentParameter])
+        normalizedVal = as.numeric(sampling[satisfiedCounter, currentParameter])
         newVal = floor(lowerBound + normalizedVal * (1 + upperBound - lowerBound))
         
         irace.assert(newVal >= lowerBound)
@@ -276,7 +257,7 @@ fillPartialConfig = function(parameters, namesParameters, types, nbCondSatisfied
         lowerBound <- parameters$domain[[currentParameter]][1]
         upperBound <- parameters$domain[[currentParameter]][2]
         
-        normalizedVal <- as.numeric(lhd[satisfiedCounter, currentParameter])
+        normalizedVal <- as.numeric(sampling[satisfiedCounter, currentParameter])
         newVal = lowerBound + normalizedVal * (upperBound - lowerBound)
         
         #validate
@@ -288,7 +269,7 @@ fillPartialConfig = function(parameters, namesParameters, types, nbCondSatisfied
       
       else if(currentType %in% c("c", "o")){
         
-        newVal = lhd[satisfiedCounter, currentParameter]
+        newVal = sampling[satisfiedCounter, currentParameter]
         
       }
       

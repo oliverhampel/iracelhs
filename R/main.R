@@ -105,8 +105,7 @@ sampleInstances            b    ""     "--sample-instances"           1         
                                      
                                      
 init                       s    ""     "--init"                        "uniform"          "Initialization mode: uniform, lhs-both, lhs-wsum, lhs-corr, lhs-energy, euclidean_overlap"
-
-
+samplingMethod             s    ""     "--sampling-method"             "lhs"              "Sampling Method: lhs, sobol, halton"
 
 sampleInit                 x    ""     ""                             ""                 ""
 testType                   s    ""     "--test-type"                  "F-test"           "Specifies the statistical test type: F-test (Friedman test), t-test (pairwise t-tests with no correction), t-test-bonferroni (t-test with Bonferroni\'s correction for multiple comparisons), t-test-holm (t-test with Holm\'s correction for multiple comparisons)."

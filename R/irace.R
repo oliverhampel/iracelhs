@@ -395,6 +395,7 @@ addInstances <- function(scenario, instancesList, n.instances)
 ## Estimate the mean execution time
 do.experiments <- function(configurations, ninstances, scenario, parameters)
 {
+  
   output <- lapply(1:ninstances, race.wrapper, configurations = configurations, 
                    which.alive = 1:nrow(configurations), which.exe = 1:nrow(configurations), 
                    parameters = parameters, scenario = scenario)
@@ -812,11 +813,14 @@ irace <- function(scenario, parameters)
           catInfo("Sample ", nbNewConfigurations,
                   " configurations from uniform distribution", verbose = FALSE)
         }
+
+        
         newConfigurations <- scenario$sampleInit(
                                         parameters, nbNewConfigurations,
                                         digits = scenario$digits,
                                         forbidden = scenario$forbiddenExps,
-                                        repair = scenario$repairConfiguration)
+                                        repair = scenario$repairConfiguration,
+                                        samplingMethod = scenario$samplingMethod)
         newConfigurations <-
           cbind (.ID. = max(0, allConfigurations$.ID.) + 1:nrow(newConfigurations),
                  newConfigurations)

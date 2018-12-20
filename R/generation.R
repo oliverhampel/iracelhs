@@ -450,9 +450,9 @@ safeSample <- function(x, size, ...) {
   }
 }
 
-mutatedLHD <- function(lhd){
-  dimension <- ncol(lhd)
-  nbPoints <- nrow(lhd)
+mutatedSampling <- function(sampling){
+  dimension <- ncol(sampling)
+  nbPoints <- nrow(sampling)
   irace.assert(dimension > 0)
   # sample number of columns to choose (1 or more) 
   nbColumns = max(1, rbinom(1, dimension, 1 / dimension))
@@ -461,47 +461,49 @@ mutatedLHD <- function(lhd){
   #swap two values in each selected column
   for (i in chosenColumns) {
     swapIndices <- safeSample(seq_len(nbPoints), 2)
-    temp <- lhd[swapIndices[1], i]
-    lhd[swapIndices[1], i] <- lhd[swapIndices[2], i]
-    lhd[swapIndices[2], i] <- temp
+    temp <- sampling[swapIndices[1], i]
+    sampling[swapIndices[1], i] <- sampling[swapIndices[2], i]
+    sampling[swapIndices[2], i] <- temp
   }
-  return(lhd)
+  return(sampling)
 }
 
 ### Using latin hypercube sampling for the initial generation
 # FIXME TODO forbidden is ignored. document/fix/remove?
 
-sampleLHS.euclidean_overlap <- function(parameters, nbConfigurations, digits, forbidden = NULL, repair = NULL){
+sampleLHS.euclidean_overlap <- function(parameters, nbConfigurations, digits, forbidden = NULL, repair = NULL, samplingMethod){
   irace.note("Sampling ", nbConfigurations, " with LHS.euclidean_overlap\n")
-  return(sampleLHS(parameters, nbConfigurations, digits, forbidden, nbEvaluations=500, objective = euclidean_overlap, legacy = FALSE))
+  return(sampleLHS(parameters, nbConfigurations, digits, forbidden, nbEvaluations=500, objective = euclidean_overlap, legacy = FALSE, samplingMethod = samplingMethod))
 }
 
-sampleLHS.both <- function(parameters, nbConfigurations, digits, forbidden = NULL, repair = NULL){
+sampleLHS.both <- function(parameters, nbConfigurations, digits, forbidden = NULL, repair = NULL, samplingMethod){
 
   irace.note("Sampling ", nbConfigurations, " with LHS.both\n")
-  return(sampleLHS(parameters, nbConfigurations, digits, forbidden, nbEvaluations=500, objective = both, legacy = TRUE))
+  return(sampleLHS(parameters, nbConfigurations, digits, forbidden, nbEvaluations=500, objective = both, legacy = TRUE, samplingMethod = samplingMethod))
 }
 
-sampleLHS.weightedSum <- function(parameters, nbConfigurations, digits, forbidden = NULL, repair = NULL){
+sampleLHS.weightedSum <- function(parameters, nbConfigurations, digits, forbidden = NULL, repair = NULL, samplingMethod){
 
   irace.note("Sampling ", nbConfigurations, " with LHS.weightedSum\n")
 
-  return(sampleLHS(parameters, nbConfigurations, digits, forbidden, nbEvaluations=500, objective = weightedSum, legacy = TRUE))
+  return(sampleLHS(parameters, nbConfigurations, digits, forbidden, nbEvaluations=500, objective = weightedSum, legacy = TRUE, samplingMethod = samplingMethod))
 }
 
-sampleLHS.corr <- function(parameters, nbConfigurations, digits, forbidden = NULL, repair = NULL) {
+sampleLHS.corr <- function(parameters, nbConfigurations, digits, forbidden = NULL, repair = NULL, samplingMethod) {
     irace.note("Sampling ", nbConfigurations, " with LHS.corr\n")
-  return(sampleLHS(parameters, nbConfigurations, digits, forbidden, nbEvaluations=500, objective = correlationCriterion, legacy = TRUE))
+  return(sampleLHS(parameters, nbConfigurations, digits, forbidden, nbEvaluations=500, objective = correlationCriterion, legacy = TRUE, samplingMethod = samplingMethod))
 }
 
-sampleLHS.energy <- function(parameters, nbConfigurations, digits, forbidden = NULL, repair = NULL) {
+sampleLHS.energy <- function(parameters, nbConfigurations, digits, forbidden = NULL, repair = NULL, samplingMethod) {
   irace.note("Sampling ", nbConfigurations, " with LHS.energy\n")
-  return(sampleLHS(parameters, nbConfigurations, digits, forbidden, nbEvaluations=500, objective = energyCriterion, legacy = TRUE))
+  return(sampleLHS(parameters, nbConfigurations, digits, forbidden, nbEvaluations=500, objective = energyCriterion, legacy = TRUE, samplingMethod = samplingMethod))
 }
+
+
 
 #samples a set of configurations using LHS, optimization criterion determined by parameter
 #legacy parameter indicates whether legacy optimization criteria are used
-sampleLHS <- function (parameters, nbConfigurations, digits, forbidden=NULL, nbEvaluations=1, objective=NULL, legacy){
+sampleLHS <- function (parameters, nbConfigurations, digits, forbidden=NULL, nbEvaluations=1, objective=NULL, legacy, samplingMethod){
   
   #default method is energy + correlation criterion
   if(is.null(objective)) {
@@ -549,18 +551,20 @@ sampleLHS <- function (parameters, nbConfigurations, digits, forbidden=NULL, nbE
     nomialScaledIndices <- intersect(which(types == "c" | types == "o"), indices)
     nomialScaledNames <- namesParameters[nomialScaledIndices]
     
-    #generate a LHD for all parameters
+    #if not legacy optimization generate sampling for all parameters
     if (!legacy){
-      
-      lhd = mixedLHD(
+      sampling = mixedSampling(
         parameters = parameters,
         indices = indices,
         namesParameters = namesParameters,
         nbCondSatisfied = nbCondSatisfied,
-        types = types
-        )
+        types = types,
+        samplingMethod = samplingMethod
+      )
     }
-     
+    
+    
+    
     #generate a LHD for interval parameters and sample values for nomial parameters
     else{
       
@@ -600,9 +604,16 @@ sampleLHS <- function (parameters, nbConfigurations, digits, forbidden=NULL, nbE
       }
     }
     
-    bestLHD = lhd
+  
+    if(!legacy){
+      bestSampling = sampling
+    }
+    else{
+      bestLHD = lhd
+    }
     
-    #mixed LHD optimization
+    
+    # if not legacy optimize sampling with non legacy optimization criterion 
     if(!legacy){
       
       bestCandidateConfigs = fillPartialConfig(
@@ -613,7 +624,7 @@ sampleLHS <- function (parameters, nbConfigurations, digits, forbidden=NULL, nbE
         indices = indices,
         configurations = newConfigurations,
         digits = digits,
-        lhd = lhd
+        sampling = sampling
       )
       
       #optimize if there is more than one configuration which satisfies the current condition and
@@ -629,7 +640,7 @@ sampleLHS <- function (parameters, nbConfigurations, digits, forbidden=NULL, nbE
         #optimize nbEvaluations times
         for(i in seq_len(nbEvaluations)){
           
-          lhd = mutatedLHD(bestLHD)
+          sampling = mutatedSampling(bestSampling)
           
           candidateConfigs = fillPartialConfig(
                                 parameters = parameters, 
@@ -639,13 +650,13 @@ sampleLHS <- function (parameters, nbConfigurations, digits, forbidden=NULL, nbE
                                 indices = indices, 
                                 configurations = newConfigurations,
                                 digits = digits,
-                                lhd = lhd)
+                                sampling = sampling)
           
           obj = objective(parameters, candidateConfigs)
           
           if (all(obj <= bestObj)) {
             
-            bestLHD = lhd
+            bestSampling = sampling
             bestObj = obj
             
             ### comment out because it's annoying atm
@@ -738,10 +749,10 @@ sampleLHS <- function (parameters, nbConfigurations, digits, forbidden=NULL, nbE
       
       newConfigurations <- bestCandidateConfigs
     }
-
   }
   return (newConfigurations)
 }
+
 
 ### Uniform sampling for the initial generation
 sampleUniform <- function (parameters, nbConfigurations, digits,

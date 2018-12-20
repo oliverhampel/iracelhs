@@ -137,6 +137,7 @@ readConfigurationsFile <- function(filename, parameters, debugLevel = 0)
 # mentioned in the file is not present in the list (that is, it is NULL).
 # FIXME: Does passing an initial scenario actually work? It seems it gets
 # completely overriden by the loop below.
+
 readScenario <- function(filename = "", scenario = list())
 {
   # This function allows recursively including scenario files.
@@ -191,6 +192,7 @@ readScenario <- function(filename = "", scenario = list())
   }
   return (scenario)
 }
+
 
 ## FIXME: This function should only do checks and return
 ## TRUE/FALSE. There should be other function that does the various
