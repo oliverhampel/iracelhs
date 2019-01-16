@@ -155,7 +155,7 @@ addOthers = function(sampling, colNames, nbCondSatisfied, ordinalNames, integerN
     if (is.null(ncol(initialSampling))){
       initialColumn = initialSampling
     }
-    else if(ncol(initialSampling) > 1){
+    else if(ncol(initialSampling) >= 1){
       initialColumn = initialSampling[,currentInternalSamplingColumn] 
     }
     
@@ -177,10 +177,11 @@ addOthers = function(sampling, colNames, nbCondSatisfied, ordinalNames, integerN
     colNames[currentSamplingColumn] = integerName
     colnames(sampling) = colNames
     
+    
     if (is.null(ncol(initialSampling))){
       parameterSample = initialSampling 
     }
-    else if(ncol(initialSampling) > 1){
+    else if(ncol(initialSampling) >= 1){
       parameterSample = initialSampling[,currentInternalSamplingColumn]
     }
     
@@ -198,7 +199,7 @@ addOthers = function(sampling, colNames, nbCondSatisfied, ordinalNames, integerN
     if (is.null(ncol(initialSampling))){
       parameterSample = initialSampling 
     }
-    else if(ncol(initialSampling) > 1){
+    else if(ncol(initialSampling) >= 1){
       parameterSample = initialSampling[,currentInternalSamplingColumn]
     }
     
