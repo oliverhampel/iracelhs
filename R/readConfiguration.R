@@ -600,7 +600,8 @@ checkTargetFiles <- function(scenario, parameters)
                                parameters, length(conf.id),
                                digits = scenario$digits,
                                forbidden = scenario$forbiddenExps,
-                               repair = scenario$repairConfiguration)
+                               repair = scenario$repairConfiguration
+                               samplingMethod = scenario$samplingMethod)
   configurations <- cbind (.ID. = conf.id, configurations)
   
   # Get info of the configuration
