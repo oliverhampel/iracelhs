@@ -738,7 +738,7 @@ sampleLHS <- function (parameters, nbConfigurations, digits, forbidden=NULL, nbE
           ###cat(paste(i, obj, bestObj, sep="	", collapse="	"), "\n")
           
           # mutate for next iteration
-          lhd <- mutatedLHD(bestLHD)
+          lhd <- mutatedSampling(bestLHD)
           
           #scale the LHD to 0..1 and verify to get new intervalValues
           intervalValues <- (lhd - 1) / (nbCondSatisfied - 1.0)
