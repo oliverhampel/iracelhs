@@ -104,7 +104,7 @@ sampleInstances            b    ""     "--sample-instances"           1         
 
                                      
                                      
-init                       s    ""     "--init"                        "uniform"          "Initialization mode: uniform, lhs-both, lhs-wsum, lhs-corr, lhs-energy, euclidean_overlap"
+init                       s    ""     "--init"                        "uniform"          "Initialization mode: uniform, lhs-both, lhs-wsum, lhs-corr, lhs-energy, maximin_euclidean_overlap"
 samplingMethod             s    ""     "--sampling-method"             "lhs"              "Sampling Method: lhs, sobol, halton"
 
 sampleInit                 x    ""     ""                             ""                 ""

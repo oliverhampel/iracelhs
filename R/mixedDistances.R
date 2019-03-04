@@ -37,7 +37,7 @@ get_range <- function(configurations, namesParameters, typesParameters, pn){
 }
 
 #returns the inverted minimal heterogeneous euclidean-overlap distance of a set of configurations
-euclidean_overlap <- function(parameters, configurations){
+maximin_euclidean_overlap <- function(parameters, configurations){
   
   #get parameter names and types
   namesParameters <- names(parameters$conditions)
