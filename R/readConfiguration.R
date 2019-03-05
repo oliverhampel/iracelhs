@@ -493,9 +493,9 @@ checkScenario <- function(scenario = defaultScenario())
              "lhs-wsum"      = sampleLHS.weightedSum,
              "lhs-corr"      = sampleLHS.corr,
              "lhs-energy"    = sampleLHS.energy,
-             "maximin_euclidean_overlap" = sampleLHS.maximin_euclidean_overlap,
+             "energy_euclidean_overlap" = sampleLHS.energy_euclidean_overlap,
              error.invalid.value("init",
-               c("uniform", "lhs-both", "lhs-wsum", "lhs-corr", "lhs-energy", "maximin_euclidean_overlap")))
+               c("uniform", "lhs-both", "lhs-wsum", "lhs-corr", "lhs-energy", "energy_euclidean_overlap")))
   }
   
   return (scenario)

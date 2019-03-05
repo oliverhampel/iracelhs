@@ -486,9 +486,10 @@ mutatedSampling <- function(sampling){
 ### Using latin hypercube sampling for the initial generation
 # FIXME TODO forbidden is ignored. document/fix/remove?
 
-sampleLHS.maximin_euclidean_overlap <- function(parameters, nbConfigurations, digits, forbidden = NULL, repair = NULL, samplingMethod){
-  irace.note("Sampling ", nbConfigurations, " with LHS.maximin_euclidean_overlap\n")
-  return(sampleLHS(parameters, nbConfigurations, digits, forbidden, nbEvaluations=500, objective = maximin_euclidean_overlap, legacy = FALSE, samplingMethod = samplingMethod))
+
+sampleLHS.energy_euclidean_overlap <- function(parameters, nbConfigurations, digits, forbidden = NULL, repair = NULL, samplingMethod){
+  irace.note("Sampling ", nbConfigurations, " with energy_euclidean_overlap\n")
+  return(sampleLHS(parameters, nbConfigurations, digits, forbidden, nbEvaluations=500, objective = energy_euclidean_overlap, legacy = FALSE, samplingMethod = samplingMethod))
 }
 
 sampleLHS.both <- function(parameters, nbConfigurations, digits, forbidden = NULL, repair = NULL, samplingMethod){
