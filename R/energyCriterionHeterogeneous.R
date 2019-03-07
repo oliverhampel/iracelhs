@@ -70,6 +70,5 @@ energyCriterionHeterogeneous = function(parameters, configurations, dfunction){
   }
   energyValue = (energyValue/nbEnergyValues) ** (1/exponent)
   
-  irace.error(energyValue)
   return(energyValue)
 }
