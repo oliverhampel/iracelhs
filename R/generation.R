@@ -487,28 +487,27 @@ mutatedSampling <- function(sampling){
 # FIXME TODO forbidden is ignored. document/fix/remove?
 
 
-sampleConfigurations.energy_euclidean_overlap <- function(parameters, nbConfigurations, digits, forbidden = NULL, repair = NULL, samplingMethod){
-  irace.note("Sampling ", nbConfigurations, " with energy_euclidean_overlap\n")
-  return(sampleConfigurations(parameters, nbConfigurations, digits, forbidden, nbEvaluations=500, objective = energy_euclidean_overlap, legacy = FALSE, samplingMethod = samplingMethod))
+sampleConfigurations.energyEuclideanOverlap <- function(parameters, nbConfigurations, digits, forbidden = NULL, repair = NULL, samplingMethod){
+  irace.note("Sampling ", nbConfigurations, " with energy-euclidean-overlap\n")
+  return(sampleConfigurations(parameters, nbConfigurations, digits, forbidden, nbEvaluations=500, objective = energyEuclideanOverlap, legacy = FALSE, samplingMethod = samplingMethod))
 }
 
-sampleConfigurations.energy_euclidean_goodall <- function(parameters, nbConfigurations, digits, forbidden = NULL, repair = NULL, samplingMethod){
-  irace.note("Sampling ", nbConfigurations, " with energy_euclidean_goodall\n")
-  return(sampleConfigurations(parameters, nbConfigurations, digits, forbidden, nbEvaluations=500, objective = energy_euclidean_goodall, legacy = FALSE, samplingMethod = samplingMethod))
+sampleConfigurations.energyEuclideanGoodall <- function(parameters, nbConfigurations, digits, forbidden = NULL, repair = NULL, samplingMethod){
+  irace.note("Sampling ", nbConfigurations, " with energy-euclidean-goodall\n")
+  return(sampleConfigurations(parameters, nbConfigurations, digits, forbidden, nbEvaluations=500, objective = energyEuclideanGoodall, legacy = FALSE, samplingMethod = samplingMethod))
 }
 
-sampleConfigurations.energy_euclidean_eskin <- function(parameters, nbConfigurations, digits, forbidden = NULL, repair = NULL, samplingMethod){
-  irace.note("Sampling ", nbConfigurations, " with energy_euclidean_eskin\n")
-  return(sampleConfigurations(parameters, nbConfigurations, digits, forbidden, nbEvaluations=500, objective = energy_euclidean_eskin, legacy = FALSE, samplingMethod = samplingMethod))
+sampleConfigurations.energyEuclideanEskin <- function(parameters, nbConfigurations, digits, forbidden = NULL, repair = NULL, samplingMethod){
+  irace.note("Sampling ", nbConfigurations, " with energy-euclidean-eskin\n")
+  return(sampleConfigurations(parameters, nbConfigurations, digits, forbidden, nbEvaluations=500, objective = energyEuclideanEskin, legacy = FALSE, samplingMethod = samplingMethod))
 }
 
-sampleConfigurations.energy_euclidean_occurrence_frequency <- function(parameters, nbConfigurations, digits, forbidden = NULL, repair = NULL, samplingMethod){
-  irace.note("Sampling ", nbConfigurations, " with energy_euclidean_occurrence_frequency\n")
-  return(sampleConfigurations(parameters, nbConfigurations, digits, forbidden, nbEvaluations=500, objective = energy_euclidean_occurrence_frequency, legacy = FALSE, samplingMethod = samplingMethod))
+sampleConfigurations.energyEuclideanOccurrenceFrequency <- function(parameters, nbConfigurations, digits, forbidden = NULL, repair = NULL, samplingMethod){
+  irace.note("Sampling ", nbConfigurations, " with energy-euclidean-occurrence-frequency\n")
+  return(sampleConfigurations(parameters, nbConfigurations, digits, forbidden, nbEvaluations=500, objective = energyEuclideanOccurrenceFrequency, legacy = FALSE, samplingMethod = samplingMethod))
 }
 
 sampleConfigurations.both <- function(parameters, nbConfigurations, digits, forbidden = NULL, repair = NULL, samplingMethod){
-
   irace.note("Sampling ", nbConfigurations, " with LHS.both\n")
   return(sampleConfigurations(parameters, nbConfigurations, digits, forbidden, nbEvaluations=500, objective = both, legacy = TRUE, samplingMethod = samplingMethod))
 }
