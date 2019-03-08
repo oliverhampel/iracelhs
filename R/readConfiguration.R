@@ -489,14 +489,14 @@ checkScenario <- function(scenario = defaultScenario())
     scenario$sampleInit <-
       switch(tolower(scenario$init),
              "uniform" = sampleUniform,
-             "lhs-both"     = sampleLHS.both,
-             "lhs-wsum"      = sampleLHS.weightedSum,
-             "lhs-corr"      = sampleLHS.corr,
-             "lhs-energy"    = sampleLHS.energy,
-             "energy_euclidean_overlap" = sampleLHS.energy_euclidean_overlap,
-             "energy_euclidean_goodall" = sampleLHS.energy_euclidean_goodall,
-             "energy_euclidean_eskin" = sampleLHS.energy_euclidean_eskin,
-             "energy_euclidean_occurrence_frequency" = sampleLHS.energy_euclidean_occurrence_frequency,
+             "lhs-both"     = sampleConfigurations.both,
+             "lhs-wsum"      = sampleConfigurations.weightedSum,
+             "lhs-corr"      = sampleConfigurations.corr,
+             "lhs-energy"    = sampleConfigurations.energy,
+             "energy_euclidean_overlap" = sampleConfigurations.energy_euclidean_overlap,
+             "energy_euclidean_goodall" = sampleConfigurations.energy_euclidean_goodall,
+             "energy_euclidean_eskin" = sampleConfigurations.energy_euclidean_eskin,
+             "energy_euclidean_occurrence_frequency" = sampleConfigurations.energy_euclidean_occurrence_frequency,
              error.invalid.value("init",
                c("uniform", "lhs-both", "lhs-wsum", "lhs-corr", "lhs-energy", "energy_euclidean_overlap", "energy_euclidean_goodall", "energy_euclidean_eskin", "energy_euclidean_occurrence_frequency")))
   }

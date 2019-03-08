@@ -487,54 +487,52 @@ mutatedSampling <- function(sampling){
 # FIXME TODO forbidden is ignored. document/fix/remove?
 
 
-sampleLHS.energy_euclidean_overlap <- function(parameters, nbConfigurations, digits, forbidden = NULL, repair = NULL, samplingMethod){
+sampleConfigurations.energy_euclidean_overlap <- function(parameters, nbConfigurations, digits, forbidden = NULL, repair = NULL, samplingMethod){
   irace.note("Sampling ", nbConfigurations, " with energy_euclidean_overlap\n")
-  return(sampleLHS(parameters, nbConfigurations, digits, forbidden, nbEvaluations=500, objective = energy_euclidean_overlap, legacy = FALSE, samplingMethod = samplingMethod))
+  return(sampleConfigurations(parameters, nbConfigurations, digits, forbidden, nbEvaluations=500, objective = energy_euclidean_overlap, legacy = FALSE, samplingMethod = samplingMethod))
 }
 
-sampleLHS.energy_euclidean_goodall <- function(parameters, nbConfigurations, digits, forbidden = NULL, repair = NULL, samplingMethod){
+sampleConfigurations.energy_euclidean_goodall <- function(parameters, nbConfigurations, digits, forbidden = NULL, repair = NULL, samplingMethod){
   irace.note("Sampling ", nbConfigurations, " with energy_euclidean_goodall\n")
-  return(sampleLHS(parameters, nbConfigurations, digits, forbidden, nbEvaluations=500, objective = energy_euclidean_goodall, legacy = FALSE, samplingMethod = samplingMethod))
+  return(sampleConfigurations(parameters, nbConfigurations, digits, forbidden, nbEvaluations=500, objective = energy_euclidean_goodall, legacy = FALSE, samplingMethod = samplingMethod))
 }
 
-sampleLHS.energy_euclidean_eskin <- function(parameters, nbConfigurations, digits, forbidden = NULL, repair = NULL, samplingMethod){
+sampleConfigurations.energy_euclidean_eskin <- function(parameters, nbConfigurations, digits, forbidden = NULL, repair = NULL, samplingMethod){
   irace.note("Sampling ", nbConfigurations, " with energy_euclidean_eskin\n")
-  return(sampleLHS(parameters, nbConfigurations, digits, forbidden, nbEvaluations=500, objective = energy_euclidean_eskin, legacy = FALSE, samplingMethod = samplingMethod))
+  return(sampleConfigurations(parameters, nbConfigurations, digits, forbidden, nbEvaluations=500, objective = energy_euclidean_eskin, legacy = FALSE, samplingMethod = samplingMethod))
 }
 
-sampleLHS.energy_euclidean_occurrence_frequency <- function(parameters, nbConfigurations, digits, forbidden = NULL, repair = NULL, samplingMethod){
+sampleConfigurations.energy_euclidean_occurrence_frequency <- function(parameters, nbConfigurations, digits, forbidden = NULL, repair = NULL, samplingMethod){
   irace.note("Sampling ", nbConfigurations, " with energy_euclidean_occurrence_frequency\n")
-  return(sampleLHS(parameters, nbConfigurations, digits, forbidden, nbEvaluations=500, objective = energy_euclidean_occurrence_frequency, legacy = FALSE, samplingMethod = samplingMethod))
+  return(sampleConfigurations(parameters, nbConfigurations, digits, forbidden, nbEvaluations=500, objective = energy_euclidean_occurrence_frequency, legacy = FALSE, samplingMethod = samplingMethod))
 }
 
-sampleLHS.both <- function(parameters, nbConfigurations, digits, forbidden = NULL, repair = NULL, samplingMethod){
+sampleConfigurations.both <- function(parameters, nbConfigurations, digits, forbidden = NULL, repair = NULL, samplingMethod){
 
   irace.note("Sampling ", nbConfigurations, " with LHS.both\n")
-  return(sampleLHS(parameters, nbConfigurations, digits, forbidden, nbEvaluations=500, objective = both, legacy = TRUE, samplingMethod = samplingMethod))
+  return(sampleConfigurations(parameters, nbConfigurations, digits, forbidden, nbEvaluations=500, objective = both, legacy = TRUE, samplingMethod = samplingMethod))
 }
 
-sampleLHS.weightedSum <- function(parameters, nbConfigurations, digits, forbidden = NULL, repair = NULL, samplingMethod){
-
+sampleConfigurations.weightedSum <- function(parameters, nbConfigurations, digits, forbidden = NULL, repair = NULL, samplingMethod){
   irace.note("Sampling ", nbConfigurations, " with LHS.weightedSum\n")
-
-  return(sampleLHS(parameters, nbConfigurations, digits, forbidden, nbEvaluations=500, objective = weightedSum, legacy = TRUE, samplingMethod = samplingMethod))
+  return(sampleConfigurations(parameters, nbConfigurations, digits, forbidden, nbEvaluations=500, objective = weightedSum, legacy = TRUE, samplingMethod = samplingMethod))
 }
 
-sampleLHS.corr <- function(parameters, nbConfigurations, digits, forbidden = NULL, repair = NULL, samplingMethod) {
+sampleConfigurations.corr <- function(parameters, nbConfigurations, digits, forbidden = NULL, repair = NULL, samplingMethod) {
     irace.note("Sampling ", nbConfigurations, " with LHS.corr\n")
-  return(sampleLHS(parameters, nbConfigurations, digits, forbidden, nbEvaluations=500, objective = correlationCriterion, legacy = TRUE, samplingMethod = samplingMethod))
+  return(sampleConfigurations(parameters, nbConfigurations, digits, forbidden, nbEvaluations=500, objective = correlationCriterion, legacy = TRUE, samplingMethod = samplingMethod))
 }
 
-sampleLHS.energy <- function(parameters, nbConfigurations, digits, forbidden = NULL, repair = NULL, samplingMethod) {
+sampleConfigurations.energy <- function(parameters, nbConfigurations, digits, forbidden = NULL, repair = NULL, samplingMethod) {
   irace.note("Sampling ", nbConfigurations, " with LHS.energy\n")
-  return(sampleLHS(parameters, nbConfigurations, digits, forbidden, nbEvaluations=500, objective = energyCriterion, legacy = TRUE, samplingMethod = samplingMethod))
+  return(sampleConfigurations(parameters, nbConfigurations, digits, forbidden, nbEvaluations=500, objective = energyCriterion, legacy = TRUE, samplingMethod = samplingMethod))
 }
 
 
 
 #samples a set of configurations using LHS, optimization criterion determined by parameter
 #legacy parameter indicates whether legacy optimization criteria are used
-sampleLHS <- function (parameters, nbConfigurations, digits, forbidden=NULL, nbEvaluations=1, objective=NULL, legacy, samplingMethod){
+sampleConfigurations <- function (parameters, nbConfigurations, digits, forbidden=NULL, nbEvaluations=1, objective=NULL, legacy, samplingMethod){
   
   #default method is energy + correlation criterion
   if(is.null(objective)) {
