@@ -507,24 +507,24 @@ sampleConfigurations.energyEuclideanOccurrenceFrequency <- function(parameters, 
   return(sampleConfigurations(parameters, nbConfigurations, digits, forbidden, nbEvaluations=500, objective = energyEuclideanOccurrenceFrequency, legacy = FALSE, samplingMethod = samplingMethod))
 }
 
-sampleConfigurations.both <- function(parameters, nbConfigurations, digits, forbidden = NULL, repair = NULL, samplingMethod){
+sampleConfigurations.both <- function(parameters, nbConfigurations, digits, forbidden = NULL, repair = NULL, samplingMethod = samplingMethod){
   irace.note("Sampling ", nbConfigurations, " with LHS.both\n")
-  return(sampleConfigurations(parameters, nbConfigurations, digits, forbidden, nbEvaluations=500, objective = both, legacy = TRUE, samplingMethod = samplingMethod))
+  return(sampleConfigurations(parameters, nbConfigurations, digits, forbidden, nbEvaluations=500, objective = both, legacy = TRUE, samplingMethod = NULL))
 }
 
 sampleConfigurations.weightedSum <- function(parameters, nbConfigurations, digits, forbidden = NULL, repair = NULL, samplingMethod){
   irace.note("Sampling ", nbConfigurations, " with LHS.weightedSum\n")
-  return(sampleConfigurations(parameters, nbConfigurations, digits, forbidden, nbEvaluations=500, objective = weightedSum, legacy = TRUE, samplingMethod = samplingMethod))
+  return(sampleConfigurations(parameters, nbConfigurations, digits, forbidden, nbEvaluations=500, objective = weightedSum, legacy = TRUE, samplingMethod = NULL))
 }
 
 sampleConfigurations.corr <- function(parameters, nbConfigurations, digits, forbidden = NULL, repair = NULL, samplingMethod) {
     irace.note("Sampling ", nbConfigurations, " with LHS.corr\n")
-  return(sampleConfigurations(parameters, nbConfigurations, digits, forbidden, nbEvaluations=500, objective = correlationCriterion, legacy = TRUE, samplingMethod = samplingMethod))
+  return(sampleConfigurations(parameters, nbConfigurations, digits, forbidden, nbEvaluations=500, objective = correlationCriterion, legacy = TRUE, samplingMethod = NULL))
 }
 
 sampleConfigurations.energy <- function(parameters, nbConfigurations, digits, forbidden = NULL, repair = NULL, samplingMethod) {
   irace.note("Sampling ", nbConfigurations, " with LHS.energy\n")
-  return(sampleConfigurations(parameters, nbConfigurations, digits, forbidden, nbEvaluations=500, objective = energyCriterion, legacy = TRUE, samplingMethod = samplingMethod))
+  return(sampleConfigurations(parameters, nbConfigurations, digits, forbidden, nbEvaluations=500, objective = energyCriterion, legacy = TRUE, samplingMethod = NULL))
 }
 
 
