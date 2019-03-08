@@ -494,8 +494,11 @@ checkScenario <- function(scenario = defaultScenario())
              "lhs-corr"      = sampleLHS.corr,
              "lhs-energy"    = sampleLHS.energy,
              "energy_euclidean_overlap" = sampleLHS.energy_euclidean_overlap,
+             "energy_euclidean_goodall" = sampleLHS.energy_euclidean_goodall,
+             "energy_euclidean_eskin" = sampleLHS.energy_euclidean_eskin,
+             "energy_euclidean_occurrence_frequency" = sampleLHS.energy_euclidean_occurrence_frequency,
              error.invalid.value("init",
-               c("uniform", "lhs-both", "lhs-wsum", "lhs-corr", "lhs-energy", "energy_euclidean_overlap")))
+               c("uniform", "lhs-both", "lhs-wsum", "lhs-corr", "lhs-energy", "energy_euclidean_overlap", "energy_euclidean_goodall", "energy_euclidean_eskin", "energy_euclidean_occurrence_frequency")))
   }
   
   return (scenario)

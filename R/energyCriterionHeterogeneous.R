@@ -1,9 +1,18 @@
 energy_euclidean_overlap = function(parameters, configurations){
-  
   return(energyCriterionHeterogeneous(parameters, configurations, dfunction = euclideanOverlap))
-  
 }
 
+energy_euclidean_goodall = function(parameters, configurations){
+  return(energyCriterionHeterogeneous(parameters, configurations, dfunction = euclideanGoodall))
+}
+
+energy_euclidean_eskin = function(parameters, configurations){
+  return(energyCriterionHeterogeneous(parameters, configurations, dfunction = euclideanEskin))
+}
+
+energy_euclidean_occurrence_frequency = function(parameters, configurations){
+  return(energyCriterionHeterogeneous(parameters, configurations, dfunction = euclideanOccurrenceFrequency))
+}
 
 energyCriterionHeterogeneous = function(parameters, configurations, dfunction){
   

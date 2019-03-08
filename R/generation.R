@@ -492,6 +492,21 @@ sampleLHS.energy_euclidean_overlap <- function(parameters, nbConfigurations, dig
   return(sampleLHS(parameters, nbConfigurations, digits, forbidden, nbEvaluations=500, objective = energy_euclidean_overlap, legacy = FALSE, samplingMethod = samplingMethod))
 }
 
+sampleLHS.energy_euclidean_goodall <- function(parameters, nbConfigurations, digits, forbidden = NULL, repair = NULL, samplingMethod){
+  irace.note("Sampling ", nbConfigurations, " with energy_euclidean_goodall\n")
+  return(sampleLHS(parameters, nbConfigurations, digits, forbidden, nbEvaluations=500, objective = energy_euclidean_goodall, legacy = FALSE, samplingMethod = samplingMethod))
+}
+
+sampleLHS.energy_euclidean_eskin <- function(parameters, nbConfigurations, digits, forbidden = NULL, repair = NULL, samplingMethod){
+  irace.note("Sampling ", nbConfigurations, " with energy_euclidean_eskin\n")
+  return(sampleLHS(parameters, nbConfigurations, digits, forbidden, nbEvaluations=500, objective = energy_euclidean_eskin, legacy = FALSE, samplingMethod = samplingMethod))
+}
+
+sampleLHS.energy_euclidean_occurrence_frequency <- function(parameters, nbConfigurations, digits, forbidden = NULL, repair = NULL, samplingMethod){
+  irace.note("Sampling ", nbConfigurations, " with energy_euclidean_occurrence_frequency\n")
+  return(sampleLHS(parameters, nbConfigurations, digits, forbidden, nbEvaluations=500, objective = energy_euclidean_occurrence_frequency, legacy = FALSE, samplingMethod = samplingMethod))
+}
+
 sampleLHS.both <- function(parameters, nbConfigurations, digits, forbidden = NULL, repair = NULL, samplingMethod){
 
   irace.note("Sampling ", nbConfigurations, " with LHS.both\n")
