@@ -104,7 +104,7 @@ sampleInstances            b    ""     "--sample-instances"           1         
 
                                      
                                      
-init                       s    ""     "--init"                        "uniform"          "Initialization mode: uniform, lhs-both, lhs-wsum, lhs-corr, lhs-energy, energy-euclidean-overlap, energy-euclidean-goodall, energy-euclidean-eskin, energy-euclidean-occurrence-frequency"
+init                       s    ""     "--init"                        "uniform"          "Initialization mode: uniform, lhs-both, lhs-wsum, lhs-corr, lhs-energy, lhs-energy-euclidean-overlap, halton-energy-euclidean-overlap, sobol-energy-euclidean-overlap, lhs-energy-euclidean-goodall, halton-energy-euclidean-goodall, sobol-energy-euclidean-goodall, lhs-energy-euclidean-eskin, halton-energy-euclidean-eskin, sobol-energy-euclidean-eskin, lhs-energy-euclidean-occurrence-frequency, halton-energy-euclidean-occurrence-frequency, sobol-energy-euclidean-occurrence-frequency"
 samplingMethod             s    ""     "--sampling-method"             "lhs"              "Sampling Method: lhs, sobol, halton"
 
 sampleInit                 x    ""     ""                             ""                 ""

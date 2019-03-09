@@ -493,12 +493,25 @@ checkScenario <- function(scenario = defaultScenario())
              "lhs-wsum"      = sampleConfigurations.weightedSum,
              "lhs-corr"      = sampleConfigurations.corr,
              "lhs-energy"    = sampleConfigurations.energy,
-             "energy-euclidean-overlap" = sampleConfigurations.energyEuclideanOverlap,
-             "energy-euclidean-goodall" = sampleConfigurations.energyEuclideanGoodall,
-             "energy-euclidean-eskin" = sampleConfigurations.energyEuclideanEskin,
-             "energy-euclidean-occurrence-frequency" = sampleConfigurations.energyEuclideanOccurrenceFrequency,
+             "lhs-energy-euclidean-overlap" = sampleConfigurations.lhsEnergyEuclideanOverlap,
+             "halton-energy-euclidean-overlap" = sampleConfigurations.haltonEnergyEuclideanOverlap,
+             "sobol-energy-euclidean-overlap" = sampleConfigurations.sobolEnergyEuclideanOverlap,
+             "lhs-energy-euclidean-goodall" = sampleConfigurations.lhsEnergyEuclideanGoodall,
+             "halton-energy-euclidean-goodall" = sampleConfigurations.haltonEnergyEuclideanGoodall,
+             "sobol-energy-euclidean-goodall" = sampleConfigurations.sobolEnergyEuclideanGoodall,
+             "lhs-energy-euclidean-eskin" = sampleConfigurations.lhsEnergyEuclideanEskin,
+             "halton-energy-euclidean-eskin" = sampleConfigurations.haltonEnergyEuclideanEskin,
+             "sobol-energy-euclidean-eskin" = sampleConfigurations.sobolEnergyEuclideanEskin,
+             "lhs-energy-euclidean-occurrence-frequency" = sampleConfigurations.lhsEnergyEuclideanOccurrenceFrequency,
+             "halton-energy-euclidean-occurrence-frequency" = sampleConfigurations.haltonEnergyEuclideanOccurrenceFrequency,
+             "sobol-energy-euclidean-occurrence-frequency" = sampleConfigurations.sobolEnergyEuclideanOccurrenceFrequency,
              error.invalid.value("init",
-               c("uniform", "lhs-both", "lhs-wsum", "lhs-corr", "lhs-energy", "energy-euclidean-overlap", "energy-euclidean-goodall", "energy-euclidean-eskin", "energy-euclidean-occurrence-frequency")))
+               c("uniform", "lhs-both", "lhs-wsum", "lhs-corr", "lhs-energy", 
+                 "lhs-energy-euclidean-overlap", "halton-energy-euclidean-overlap", "sobol-energy-euclidean-overlap",
+                 "lhs-energy-euclidean-goodall", "halton-energy-euclidean-goodall", "sobol-energy-euclidean-goodall",
+                 "lhs-energy-euclidean-eskin", "halton-energy-euclidean-eskin", "sobol-energy-euclidean-eskin",
+                 "lhs-energy-euclidean-occurrence-frequency", "halton-energy-euclidean-occurrence-frequency", "sobol-energy-euclidean-occurrence-frequency"
+                 )))
   }
   
   return (scenario)
