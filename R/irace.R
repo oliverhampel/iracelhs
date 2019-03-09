@@ -565,8 +565,7 @@ irace <- function(scenario, parameters)
                                           nconfigurations - nrow(allConfigurations),
                                           digits = scenario$digits,
                                           forbidden = scenario$forbiddenExps,
-                                          repair = scenario$repairConfiguration,
-                                          samplingMethod = scenario$samplingMethod)
+                                          repair = scenario$repairConfiguration)
           newConfigurations <-
             cbind (.ID. = max(0, allConfigurations$.ID.) + 1:nrow(newConfigurations),
                    newConfigurations)
@@ -820,8 +819,7 @@ irace <- function(scenario, parameters)
                                         parameters, nbNewConfigurations,
                                         digits = scenario$digits,
                                         forbidden = scenario$forbiddenExps,
-                                        repair = scenario$repairConfiguration,
-                                        samplingMethod = scenario$samplingMethod)
+                                        repair = scenario$repairConfiguration)
         newConfigurations <-
           cbind (.ID. = max(0, allConfigurations$.ID.) + 1:nrow(newConfigurations),
                  newConfigurations)
