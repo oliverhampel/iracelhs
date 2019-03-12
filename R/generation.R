@@ -486,84 +486,84 @@ mutatedSampling <- function(sampling){
 
 
 
-sampleConfigurations.lhsEnergyEuclideanOverlap <- function(parameters, nbConfigurations, digits, forbidden = NULL, repair = NULL){
+sampleConfigurations.lhsEnergyEuclideanOverlap <- function(parameters, nbConfigurations, digits, forbidden = NULL, repair = NULL, nbEvaluations=500){
   irace.note("Sampling ", nbConfigurations, " with lhs-energy-euclidean-overlap\n")
-  return(sampleConfigurations(parameters, nbConfigurations, digits, forbidden, nbEvaluations=500, objective = energyEuclideanOverlap, legacy = FALSE, samplingMethod = 'lhs'))
+  return(sampleConfigurations(parameters, nbConfigurations, digits, forbidden, nbEvaluations = nbEvaluations, objective = energyEuclideanOverlap, legacy = FALSE, samplingMethod = 'lhs'))
 }
 
-sampleConfigurations.haltonEnergyEuclideanOverlap <- function(parameters, nbConfigurations, digits, forbidden = NULL, repair = NULL){
+sampleConfigurations.haltonEnergyEuclideanOverlap <- function(parameters, nbConfigurations, digits, forbidden = NULL, repair = NULL, nbEvaluations=500){
   irace.note("Sampling ", nbConfigurations, " with halton-energy-euclidean-overlap\n")
-  return(sampleConfigurations(parameters, nbConfigurations, digits, forbidden, nbEvaluations=500, objective = energyEuclideanOverlap, legacy = FALSE, samplingMethod = 'halton'))
+  return(sampleConfigurations(parameters, nbConfigurations, digits, forbidden, nbEvaluations = nbEvaluations, objective = energyEuclideanOverlap, legacy = FALSE, samplingMethod = 'halton'))
 }
 
-sampleConfigurations.sobolEnergyEuclideanOverlap <- function(parameters, nbConfigurations, digits, forbidden = NULL, repair = NULL){
+sampleConfigurations.sobolEnergyEuclideanOverlap <- function(parameters, nbConfigurations, digits, forbidden = NULL, repair = NULL, nbEvaluations=500){
   irace.note("Sampling ", nbConfigurations, " with sobol-energy-euclidean-overlap\n")
-  return(sampleConfigurations(parameters, nbConfigurations, digits, forbidden, nbEvaluations=500, objective = energyEuclideanOverlap, legacy = FALSE, samplingMethod = 'sobol'))
+  return(sampleConfigurations(parameters, nbConfigurations, digits, forbidden, nbEvaluations = nbEvaluations, objective = energyEuclideanOverlap, legacy = FALSE, samplingMethod = 'sobol'))
 }
 
-sampleConfigurations.lhsEnergyEuclideanGoodall <- function(parameters, nbConfigurations, digits, forbidden = NULL, repair = NULL){
+sampleConfigurations.lhsEnergyEuclideanGoodall <- function(parameters, nbConfigurations, digits, forbidden = NULL, repair = NULL, nbEvaluations=500){
   irace.note("Sampling ", nbConfigurations, " with lhs-energy-euclidean-goodall\n")
-  return(sampleConfigurations(parameters, nbConfigurations, digits, forbidden, nbEvaluations=500, objective = energyEuclideanGoodall, legacy = FALSE, samplingMethod = 'lhs'))
+  return(sampleConfigurations(parameters, nbConfigurations, digits, forbidden, nbEvaluations = nbEvaluations, objective = energyEuclideanGoodall, legacy = FALSE, samplingMethod = 'lhs'))
 }
 
-sampleConfigurations.haltonEnergyEuclideanGoodall <- function(parameters, nbConfigurations, digits, forbidden = NULL, repair = NULL){
+sampleConfigurations.haltonEnergyEuclideanGoodall <- function(parameters, nbConfigurations, digits, forbidden = NULL, repair = NULL, nbEvaluations=500){
   irace.note("Sampling ", nbConfigurations, " with halton-energy-euclidean-goodall\n")
-  return(sampleConfigurations(parameters, nbConfigurations, digits, forbidden, nbEvaluations=500, objective = energyEuclideanGoodall, legacy = FALSE, samplingMethod = 'halton'))
+  return(sampleConfigurations(parameters, nbConfigurations, digits, forbidden, nbEvaluations = nbEvaluations, objective = energyEuclideanGoodall, legacy = FALSE, samplingMethod = 'halton'))
 }
 
-sampleConfigurations.sobolEnergyEuclideanGoodall <- function(parameters, nbConfigurations, digits, forbidden = NULL, repair = NULL){
+sampleConfigurations.sobolEnergyEuclideanGoodall <- function(parameters, nbConfigurations, digits, forbidden = NULL, repair = NULL, nbEvaluations=500){
   irace.note("Sampling ", nbConfigurations, " with sobol-energy-euclidean-goodall\n")
-  return(sampleConfigurations(parameters, nbConfigurations, digits, forbidden, nbEvaluations=500, objective = energyEuclideanGoodall, legacy = FALSE, samplingMethod = 'sobol'))
+  return(sampleConfigurations(parameters, nbConfigurations, digits, forbidden, nbEvaluations = nbEvaluations, objective = energyEuclideanGoodall, legacy = FALSE, samplingMethod = 'sobol'))
 }
 
-sampleConfigurations.lhsEnergyEuclideanEskin <- function(parameters, nbConfigurations, digits, forbidden = NULL, repair = NULL){
+sampleConfigurations.lhsEnergyEuclideanEskin <- function(parameters, nbConfigurations, digits, forbidden = NULL, repair = NULL, nbEvaluations=500){
   irace.note("Sampling ", nbConfigurations, " with lhs-energy-euclidean-eskin\n")
-  return(sampleConfigurations(parameters, nbConfigurations, digits, forbidden, nbEvaluations=500, objective = energyEuclideanEskin, legacy = FALSE, samplingMethod = 'lhs'))
+  return(sampleConfigurations(parameters, nbConfigurations, digits, forbidden, nbEvaluations = nbEvaluations, objective = energyEuclideanEskin, legacy = FALSE, samplingMethod = 'lhs'))
 }
 
-sampleConfigurations.haltonEnergyEuclideanEskin <- function(parameters, nbConfigurations, digits, forbidden = NULL, repair = NULL){
+sampleConfigurations.haltonEnergyEuclideanEskin <- function(parameters, nbConfigurations, digits, forbidden = NULL, repair = NULL, nbEvaluations=500){
   irace.note("Sampling ", nbConfigurations, " with halton-energy-euclidean-eskin\n")
-  return(sampleConfigurations(parameters, nbConfigurations, digits, forbidden, nbEvaluations=500, objective = energyEuclideanEskin, legacy = FALSE, samplingMethod = 'halton'))
+  return(sampleConfigurations(parameters, nbConfigurations, digits, forbidden, nbEvaluations = nbEvaluations, objective = energyEuclideanEskin, legacy = FALSE, samplingMethod = 'halton'))
 }
 
-sampleConfigurations.sobolEnergyEuclideanEskin <- function(parameters, nbConfigurations, digits, forbidden = NULL, repair = NULL){
+sampleConfigurations.sobolEnergyEuclideanEskin <- function(parameters, nbConfigurations, digits, forbidden = NULL, repair = NULL, nbEvaluations=500){
   irace.note("Sampling ", nbConfigurations, " with sobol-energy-euclidean-eskin\n")
-  return(sampleConfigurations(parameters, nbConfigurations, digits, forbidden, nbEvaluations=500, objective = energyEuclideanEskin, legacy = FALSE, samplingMethod = 'sobol'))
+  return(sampleConfigurations(parameters, nbConfigurations, digits, forbidden, nbEvaluations = nbEvaluations, objective = energyEuclideanEskin, legacy = FALSE, samplingMethod = 'sobol'))
 }
 
-sampleConfigurations.lhsEnergyEuclideanOccurrenceFrequency <- function(parameters, nbConfigurations, digits, forbidden = NULL, repair = NULL){
+sampleConfigurations.lhsEnergyEuclideanOccurrenceFrequency <- function(parameters, nbConfigurations, digits, forbidden = NULL, repair = NULL, nbEvaluations=500){
   irace.note("Sampling ", nbConfigurations, " with lhs-energy-euclidean-occurrence-frequency\n")
-  return(sampleConfigurations(parameters, nbConfigurations, digits, forbidden, nbEvaluations=500, objective = energyEuclideanOccurrenceFrequency, legacy = FALSE, samplingMethod = 'lhs'))
+  return(sampleConfigurations(parameters, nbConfigurations, digits, forbidden, nbEvaluations = nbEvaluations, objective = energyEuclideanOccurrenceFrequency, legacy = FALSE, samplingMethod = 'lhs'))
 }
 
-sampleConfigurations.haltonEnergyEuclideanOccurrenceFrequency <- function(parameters, nbConfigurations, digits, forbidden = NULL, repair = NULL){
+sampleConfigurations.haltonEnergyEuclideanOccurrenceFrequency <- function(parameters, nbConfigurations, digits, forbidden = NULL, repair = NULL, nbEvaluations=500){
   irace.note("Sampling ", nbConfigurations, " with halton-energy-euclidean-occurrence-frequency\n")
-  return(sampleConfigurations(parameters, nbConfigurations, digits, forbidden, nbEvaluations=500, objective = energyEuclideanOccurrenceFrequency, legacy = FALSE, samplingMethod = 'halton'))
+  return(sampleConfigurations(parameters, nbConfigurations, digits, forbidden, nbEvaluations = nbEvaluations, objective = energyEuclideanOccurrenceFrequency, legacy = FALSE, samplingMethod = 'halton'))
 }
 
-sampleConfigurations.sobolEnergyEuclideanOccurrenceFrequency <- function(parameters, nbConfigurations, digits, forbidden = NULL, repair = NULL){
+sampleConfigurations.sobolEnergyEuclideanOccurrenceFrequency <- function(parameters, nbConfigurations, digits, forbidden = NULL, repair = NULL, nbEvaluations=500){
   irace.note("Sampling ", nbConfigurations, " with sobol-energy-euclidean-occurrence-frequency\n")
-  return(sampleConfigurations(parameters, nbConfigurations, digits, forbidden, nbEvaluations=500, objective = energyEuclideanOccurrenceFrequency, legacy = FALSE, samplingMethod = 'sobol'))
+  return(sampleConfigurations(parameters, nbConfigurations, digits, forbidden, nbEvaluations = nbEvaluations, objective = energyEuclideanOccurrenceFrequency, legacy = FALSE, samplingMethod = 'sobol'))
 }
 
-sampleConfigurations.both <- function(parameters, nbConfigurations, digits, forbidden = NULL, repair = NULL){
+sampleConfigurations.both <- function(parameters, nbConfigurations, digits, forbidden = NULL, repair = NULL, nbEvaluations=500){
   irace.note("Sampling ", nbConfigurations, " with LHS.both\n")
-  return(sampleConfigurations(parameters, nbConfigurations, digits, forbidden, nbEvaluations=500, objective = both, legacy = TRUE, samplingMethod = NULL))
+  return(sampleConfigurations(parameters, nbConfigurations, digits, forbidden, nbEvaluations = nbEvaluations, objective = both, legacy = TRUE, samplingMethod = NULL))
 }
 
-sampleConfigurations.weightedSum <- function(parameters, nbConfigurations, digits, forbidden = NULL, repair = NULL){
+sampleConfigurations.weightedSum <- function(parameters, nbConfigurations, digits, forbidden = NULL, repair = NULL, nbEvaluations=500){
   irace.note("Sampling ", nbConfigurations, " with LHS.weightedSum\n")
-  return(sampleConfigurations(parameters, nbConfigurations, digits, forbidden, nbEvaluations=500, objective = weightedSum, legacy = TRUE, samplingMethod = NULL))
+  return(sampleConfigurations(parameters, nbConfigurations, digits, forbidden, nbEvaluations = nbEvaluations, objective = weightedSum, legacy = TRUE, samplingMethod = NULL))
 }
 
-sampleConfigurations.corr <- function(parameters, nbConfigurations, digits, forbidden = NULL, repair = NULL) {
+sampleConfigurations.corr <- function(parameters, nbConfigurations, digits, forbidden = NULL, repair = NULL, nbEvaluations=500) {
     irace.note("Sampling ", nbConfigurations, " with LHS.corr\n")
-  return(sampleConfigurations(parameters, nbConfigurations, digits, forbidden, nbEvaluations=500, objective = correlationCriterion, legacy = TRUE, samplingMethod = NULL))
+  return(sampleConfigurations(parameters, nbConfigurations, digits, forbidden, nbEvaluations = nbEvaluations, objective = correlationCriterion, legacy = TRUE, samplingMethod = NULL))
 }
 
-sampleConfigurations.energy <- function(parameters, nbConfigurations, digits, forbidden = NULL, repair = NULL) {
+sampleConfigurations.energy <- function(parameters, nbConfigurations, digits, forbidden = NULL, repair = NULL, nbEvaluations=500) {
   irace.note("Sampling ", nbConfigurations, " with LHS.energy\n")
-  return(sampleConfigurations(parameters, nbConfigurations, digits, forbidden, nbEvaluations=500, objective = energyCriterion, legacy = TRUE, samplingMethod = NULL))
+  return(sampleConfigurations(parameters, nbConfigurations, digits, forbidden, nbEvaluations = nbEvaluations, objective = energyCriterion, legacy = TRUE, samplingMethod = NULL))
 }
 
 
@@ -823,7 +823,7 @@ sampleConfigurations <- function (parameters, nbConfigurations, digits, forbidde
 
 ### Uniform sampling for the initial generation
 sampleUniform <- function (parameters, nbConfigurations, digits,
-                           forbidden = NULL, repair = NULL){
+                           forbidden = NULL, repair = NULL, ...){
   # Sample new configurations.
   if (getOption(".irace.debug.level", default = 0) >= 1) {
     irace.note("Sampling ", nbConfigurations,
