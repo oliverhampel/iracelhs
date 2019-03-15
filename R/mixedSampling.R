@@ -286,8 +286,6 @@ fillPartialConfig = function(parameters, namesParameters, types, nbCondSatisfied
     configurations[idxConfiguration,] = configuration
   }
   
-  cat("\014")
-  print(configurations)
   return(configurations)
   
 }
