@@ -132,7 +132,11 @@ addCategorical = function(sampling, colNames, nbCondSatisfied, categoricalNames,
 addOthers = function(sampling, colNames, nbCondSatisfied, ordinalNames, integerNames, realNames, parameters, currentSamplingColumn, samplingMethod, nOtherParameters){
   
   if(samplingMethod == 'lhs'){
-    initialSampling = randomLHS(n = nbCondSatisfied, k = nOtherParameters)  
+    if(nbCondSatisfied > 0){
+      initialSampling = randomLHS(n = nbCondSatisfied, k = nOtherParameters)
+    }else{
+      initialSampling = matrix(nrow = 0, ncol = nOtherParameters)
+    }
   }
   else if(samplingMethod == 'halton'){
     initialSampling = halton(n = nbCondSatisfied, dim = nOtherParameters)  
