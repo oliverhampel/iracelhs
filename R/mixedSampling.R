@@ -115,7 +115,7 @@ addCategorical = function(sampling, colNames, nbCondSatisfied, categoricalNames,
         gaps = which(parameterSample == FALSE)
         
         for(gap in gaps){
-          parameterSample[gap] = toInsert[1]
+          parameterSample[gap] = toInsert[length(toInsert)]
           length(toInsert) = length(toInsert)-1
         }
       }
