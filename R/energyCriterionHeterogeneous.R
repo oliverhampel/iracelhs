@@ -28,7 +28,7 @@ energyCriterionHeterogeneous = function(parameters, configurations, dfunction){
                        partialConfiguration=empty.configuration)
   
   intervalIndices = which(types == "i" | types == "r")
-  sharedIntervalIndices = intersect(intervalIndices, which(sharedMask))
+  #sharedIntervalIndices = intersect(intervalIndices, which(sharedMask))
   sharedIndices = which(sharedMask)
   
   #set criterion exponent to number of parameters + 1
