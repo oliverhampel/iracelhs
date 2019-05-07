@@ -88,13 +88,13 @@ addCategorical = function(sampling, colNames, nbCondSatisfied, categoricalNames,
       
       toSample = nbCondSatisfied
       rowIndices = 1:nbCondSatisfied
-      parameterSample = vector(length = nbCondSatisfied)
+      parameterSample = rep(NA, nbCondSatisfied)
       
       #sample 
       while(toSample >= length(domain)){
         
         for(d in domain){
-          empties = which(parameterSample == FALSE)
+          empties = which(is.na(parameterSample))
           
           #this distinction is necessary because sample() does not work with a vector of length 1
           if(length(empties) == 1){
@@ -110,13 +110,18 @@ addCategorical = function(sampling, colNames, nbCondSatisfied, categoricalNames,
       
       #sample the remainder
       if(toSample > 0){
+        
         toInsert = sample(domain,toSample)
         
-        gaps = which(parameterSample == FALSE)
+        gaps = which(is.na(parameterSample))
         
+        
+        library(rlist)
+        
+        i = 1
         for(gap in gaps){
-          parameterSample[gap] = toInsert[length(toInsert)]
-          length(toInsert) = length(toInsert)-1
+          parameterSample[gap] = toInsert[i]
+          i = i + 1
         }
       }
     }
@@ -214,6 +219,7 @@ addOthers = function(sampling, colNames, nbCondSatisfied, ordinalNames, integerN
   }
   
   return(sampling)
+  
 }
 
 fillPartialConfig = function(parameters, namesParameters, types, nbCondSatisfied, indices, configurations, digits, sampling){
