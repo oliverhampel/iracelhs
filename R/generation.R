@@ -630,8 +630,6 @@ sampleConfigurations <- function (parameters, nbConfigurations, digits, forbidde
       )
     }
     
-    
-    
     #generate a LHD for interval parameters and sample values for nomial parameters
     else{
       
@@ -770,7 +768,7 @@ sampleConfigurations <- function (parameters, nbConfigurations, digits, forbidde
         bestObj <- objective(parameters, bestCandidateConfigs)
         
         ### comment out because it's annoying atm
-        ###print(paste(paste(indices, collapse=" "), conditionString))
+        ### print(paste(paste(indices, collapse=" "), conditionString))
         
         # optimize nbEvalutions times
         for(i in seq_len(nbEvaluations)) {

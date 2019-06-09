@@ -62,7 +62,7 @@ energyCriterionHeterogeneous = function(parameters, configurations, dfunction){
   conditionStrings = as.character(conditions)
   conditionStringSet = setdiff(conditionStrings, "TRUE")
   
-  
+  #calculate energy values for nested spaces 
   for(conditionString in conditionStringSet){
     condIndices = which(conditionStrings == conditionString)
     

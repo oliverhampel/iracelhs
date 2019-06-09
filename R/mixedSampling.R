@@ -30,6 +30,7 @@ mixedSampling = function(
 
   if(length(categoricalNames) > 0){
     
+    #add sampling for categorical parameters
     withCategorical = addCategorical(
                             sampling = sampling,
                             colNames = colNames, 
@@ -39,7 +40,6 @@ mixedSampling = function(
                             currentSamplingColumn = currentSamplingColumn
                           )
     
-    
     sampling = withCategorical[["sampling"]]
     currentSamplingColumn = withCategorical[["currentSamplingColumn"]]
     colNames = withCategorical[["colNames"]]
@@ -47,6 +47,7 @@ mixedSampling = function(
   
   nOtherParameters = length(ordinalNames) + length(integerNames) + length(realNames)
   
+  #add sampling for other parameters
   if (nOtherParameters > 0) {
     
     sampling = addOthers(
@@ -66,7 +67,7 @@ mixedSampling = function(
   return(sampling)
 }
 
-
+#generates and adds values for categorical parameters
 addCategorical = function(sampling, colNames, nbCondSatisfied, categoricalNames, parameters, currentSamplingColumn){
   
   for (categoricalName in categoricalNames){
@@ -134,6 +135,7 @@ addCategorical = function(sampling, colNames, nbCondSatisfied, categoricalNames,
   return(toReturn)
 }
 
+#generates and adds values for other parameters
 addOthers = function(sampling, colNames, nbCondSatisfied, ordinalNames, integerNames, realNames, parameters, currentSamplingColumn, samplingMethod, nOtherParameters){
   
   if(samplingMethod == 'lhs'){
@@ -152,7 +154,7 @@ addOthers = function(sampling, colNames, nbCondSatisfied, ordinalNames, integerN
   
   currentInternalSamplingColumn = 1
   
-  
+  #determine values for ordinal parameters based on the initial sampling
   for(ordinalName in ordinalNames){
     
     colNames[currentSamplingColumn] = ordinalName
@@ -181,6 +183,7 @@ addOthers = function(sampling, colNames, nbCondSatisfied, ordinalNames, integerN
     
   }
   
+  #determine values integer parameters based on the initial sampling
   for(integerName in integerNames){
     
     colNames[currentSamplingColumn] = integerName
@@ -200,6 +203,7 @@ addOthers = function(sampling, colNames, nbCondSatisfied, ordinalNames, integerN
     currentSamplingColumn = currentSamplingColumn + 1
   }
   
+  #determine values for real parameters based on the initial sampling
   for(realName in realNames){
     
     colNames[currentSamplingColumn] = realName

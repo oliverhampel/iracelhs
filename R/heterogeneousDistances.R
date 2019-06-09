@@ -35,6 +35,7 @@ occurrenceFrequency = function(a, b, clmn){
   }
 }
 
+#geeric distance function, parameterizabe with distance funtions for categorical data
 heterogeneousDistanceFunction = function(configSubspace, types, categoricalDistanceFunction){
   distmat = matrix(nrow = nrow(configSubspace), ncol = nrow(configSubspace))
   for(i in 1:(nrow(configSubspace)-1)){
